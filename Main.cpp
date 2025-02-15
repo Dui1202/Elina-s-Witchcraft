@@ -22,6 +22,7 @@ int main(int argc, char* agrs[]) {
 	Game newGame;
 	newGame.start();
 	newGame.update();
+	newGame.clean();
 	//Quit the program
 	SDL_Quit();
 

@@ -2,12 +2,13 @@
 #include "GameObject.h"
 #include "Math.h"
 
-class Projectile {
+class Projectile : public GameObject {
 public:
-	Projectile(GameObject* p_gameObj, Vector2f p_shootDir, float p_speed);
-	void move();
+	Projectile();
+	Projectile(Vector2f p_pos, SDL_Texture* p_tex, SDL_Rect p_frame, Vector2f p_shootDir, float p_speed);
+	void shoot(Vector2f startPos);
 private:
-	GameObject* object;
 	Vector2f direction;
 	float speed;
+	
 };

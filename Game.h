@@ -8,6 +8,7 @@
 #include "RenderWindow.hpp"
 #include "ResourceManager.h"
 #include "Player.h"
+#include "ProjectilesManager.h"
 
 class Game {
 public:
@@ -15,10 +16,14 @@ public:
 	void start();
 	void update();
 	void clean();
+	//Destroy out of bound Projectiles
+	void destroyProjectiles();
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
-	std::vector<GameObject> gameObjects;
-	Player player;
+	std::vector<GameObject*> gameObjectPrefabs;
+	std::vector<Projectile*> projectilePrefabs;
+	std::vector<Projectile> projectiles;
+	Player* player;
 	float playerSpeed = 0;
 };
