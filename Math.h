@@ -7,6 +7,7 @@ public:
 	Vector2f();
 	Vector2f(float p_x, float p_y);
 	void print();
+	void normalize();
 	Vector2f operator+(const Vector2f& other) const;
 	Vector2f operator-(const Vector2f& other) const;
 	Vector2f operator*(float other) const;

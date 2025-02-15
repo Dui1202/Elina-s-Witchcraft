@@ -23,3 +23,13 @@ void ResourceManager::loadTexture(std::vector<std::string> p_paths) {
 SDL_Texture* ResourceManager::getTexture(std::string& p_path) {
 	return textures[p_path];
 }
+
+void ResourceManager::clearTexture() {
+	for (auto& pair : textures) {
+		if (pair.second) {
+			SDL_DestroyTexture(pair.second);
+		}
+	}
+	textures.clear();
+	std::cout << "All textures cleared!" << std::endl;
+}

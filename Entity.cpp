@@ -16,6 +16,7 @@ void Entity::setPos(const Vector2f& p_pos) {
 SDL_Rect Entity::getCurrentFrame() {
 	return currentFrame;
 }
+
 SDL_Texture* Entity::getTex() {
 	return tex;
 }

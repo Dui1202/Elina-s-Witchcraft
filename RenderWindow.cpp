@@ -15,6 +15,11 @@ RenderWindow::RenderWindow(const char* title, int p_w, int p_h)
 	}
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 }
+
+SDL_Renderer* RenderWindow::getRenderer() {
+	return renderer;
+}
+
 SDL_Texture* RenderWindow::loadTexture(const char* p_path) {
 	SDL_Texture* texture = NULL;
 	texture = IMG_LoadTexture(renderer, p_path);

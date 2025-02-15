@@ -9,7 +9,8 @@ public:
 
 	GameObject(Vector2f p_pos, SDL_Texture* p_tex, SDL_Rect p_frame);
 	void move(Vector2f p_direction);
-private:
+protected:
+	Vector2f pos;
 	SDL_Rect currentFrame;
 	SDL_Texture* tex;
 };

@@ -5,12 +5,20 @@
 #include <vector>
 #include "Entity.h"
 #include "GameObject.h"
+#include "RenderWindow.hpp"
+#include "ResourceManager.h"
+#include "Player.h"
 
 class Game {
 public:
-	void update();
+	Game();
 	void start();
-	void handleEvent();
+	void update();
 	void clean();
 private:
+	RenderWindow window;
+	ResourceManager resourceManager;
+	std::vector<GameObject> gameObjects;
+	Player player;
+	float playerSpeed = 0;
 };
