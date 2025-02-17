@@ -3,7 +3,7 @@
 #include <SDL_image.h>
 #include"Entity.h"
 #include "GameObject.h"
-
+#include "Animation.h"
 
 class RenderWindow {
 public:
@@ -13,6 +13,7 @@ public:
 	void cleanUp();
 	void clear();
 	void render(GameObject &p_entity);
+	void renderAnimation(Animation& p_animate);
 	void display();
 private:
 	SDL_Window* window;

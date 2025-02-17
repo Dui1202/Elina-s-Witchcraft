@@ -6,6 +6,7 @@
 #include "Entity.h"
 #include "Math.h"
 #include "GameObject.h"
+#include "Animation.h"
 
 RenderWindow::RenderWindow(const char* title, int p_w, int p_h)
 	:window(NULL), renderer(NULL) {
@@ -48,10 +49,27 @@ void RenderWindow::render(GameObject &p_entity) {
 	SDL_Rect dst;
 	dst.x = p_entity.getPos().x;
 	dst.y = p_entity.getPos().y;
-	dst.w = p_entity.getCurrentFrame().w;
-	dst.h = p_entity.getCurrentFrame().h;
+	dst.w = p_entity.getCurrentFrame().w*2;
+	dst.h = p_entity.getCurrentFrame().h*2;
 	SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
 }
+
+void RenderWindow::renderAnimation(Animation& p_animation) {
+	SDL_Rect src;
+	src.x = p_animation.getCurrentFrameRect().x;
+	src.y = p_animation.getCurrentFrameRect().y;
+	src.w = p_animation.getCurrentFrameRect().w;
+	src.h = p_animation.getCurrentFrameRect().h;
+
+	SDL_Rect dst;
+	dst.x = p_animation.getPos().x;
+	dst.y = p_animation.getPos().y;
+	dst.w = p_animation.getCurrentFrameRect().w * 2;
+	dst.h = p_animation.getCurrentFrameRect().h * 2;
+
+	SDL_RenderCopy(renderer, p_animation.getTexture(), &src, &dst);
+}
+
 void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }

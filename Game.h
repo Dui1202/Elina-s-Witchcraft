@@ -9,6 +9,7 @@
 #include "ResourceManager.h"
 #include "Player.h"
 #include "ProjectilesManager.h"
+#include "Animation.h"
 
 class Game {
 public:
@@ -24,6 +25,7 @@ private:
 	std::vector<GameObject*> gameObjectPrefabs;
 	std::vector<Projectile*> projectilePrefabs;
 	std::vector<Projectile> projectiles;
+	std::vector<Animation*> animations;
 	Player* player;
 	float playerSpeed = 0;
 };

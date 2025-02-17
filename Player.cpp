@@ -19,3 +19,15 @@ void Player::shootFireball(std::vector<Projectile>& projectilesVector) {
 	preFabFireBall.setPos(getPos());
 	projectilesVector.push_back(preFabFireBall);
 }
+
+Uint32 Player::getCoolDownFb() {
+	return coolDownFb;
+}
+
+Uint32 Player::getLastShotFb() {
+	return lastShotFb;
+}
+
+void Player::setLastShotFb(Uint32 p_lastShot) {
+	lastShotFb = p_lastShot;
+}

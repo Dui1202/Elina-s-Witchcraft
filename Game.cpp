@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "ResourceManager.h"
 #include "InputManager.h"
+#include "Animation.h"
 
 //Initalize window, resourceManager,
 Game::Game()
@@ -18,7 +19,7 @@ Game::Game()
 void Game::start() {
 	//Load all textures
 	std::vector<std::string> allTexturePaths = {
-		"./asset/player/witch-idle-sprite.png",
+		"./asset/player/witch-idle-sprite-sheet.png",
 		"./asset/grass.png",
 		"./asset/fireball_sprite.png"
 	};
@@ -30,16 +31,23 @@ void Game::start() {
 
 	
 
-	SDL_Rect playerFrame = { 0, 0 , 64, 64 };
+	SDL_Rect defaultFrame = { 0, 0 , 64, 64 };
 	
 
 	//Set GameObject
 	float fireBallSpeed = 10;
-	Projectile* fireball = new Projectile(Vector2f(0, 0), fireballTexture, playerFrame, Vector2f(1, 0), fireBallSpeed);
+	Projectile* fireball = new Projectile(Vector2f(0, 0), fireballTexture, defaultFrame, Vector2f(1, 0), fireBallSpeed);
 	projectilePrefabs.push_back(fireball);
 
-	player = new Player(Vector2f(0, 0), playerTexture, playerFrame, *fireball);
+	//Set Player GameObject
+	player = new Player(Vector2f(0, 0), playerTexture, defaultFrame, *fireball);
 	playerSpeed = 5;
+
+	//Set Animation
+	Animation* playerIdleAnimation = new Animation(player->getPos(), playerTexture, 2, { 0, 0, 64, 64 }, 300);
+	animations.push_back(playerIdleAnimation);
+	Animation* fireBallAnimation = new Animation(Vector2f(0, 0), fireballTexture, 2, defaultFrame, 100);
+	animations.push_back(fireBallAnimation);
 }
 
 //Main game loop
@@ -58,7 +66,9 @@ void Game::update() {
 
 	//GameObject reference
 	Projectile* fireball = projectilePrefabs[0];
-
+	Animation* playerIdleAnimation = animations[0];
+	Animation* fireBallAnimation = animations[1];
+	
 	//The main game loop
 	while (isGameRunning) {
 		Uint32 currentTime = SDL_GetTicks();
@@ -70,15 +80,20 @@ void Game::update() {
 			while (SDL_PollEvent(&e)) {
 				if (e.type == SDL_QUIT) {
 					isGameRunning = false;
-					
-
 				}
 				inputManager.handleInput(e);
 
 				Vector2f movement(0, 0);
+
 				if (inputManager.keyStates[SDLK_w]) movement.y -= 1;
 				if (inputManager.keyStates[SDLK_s]) movement.y += 1;
-				if (inputManager.keyStates[SDLK_SPACE]) player->shootFireball(projectiles);
+				if (currentTime - player->getLastShotFb() >= player->getCoolDownFb()) {
+					if (inputManager.keyStates[SDLK_SPACE]) {
+						player->shootFireball(projectiles);
+						player->setLastShotFb(currentTime);
+					};
+				}
+
 				movement.normalize();
 
 				player->move(movement * playerSpeed);
@@ -86,9 +101,9 @@ void Game::update() {
 			}
 			accumulator -= timeStep;
 		}
-		
-		
 
+		playerIdleAnimation->setPos(player->getPos());
+		//Fireball movement
 		for (auto& fb : projectiles) {
 			fb.shoot(player->getPos());
 		}
@@ -97,7 +112,12 @@ void Game::update() {
 		//Clear the screen
 		window.clear();
 		//Draw the screen
-		window.render(*player);
+
+			//Render Player
+		window.renderAnimation(*playerIdleAnimation);
+		playerIdleAnimation->update(currentTime);
+
+			//Render FireBall
 		for (auto& fb : projectiles) {
 			window.render(fb);
 		}
