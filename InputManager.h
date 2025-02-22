@@ -15,6 +15,5 @@ public:
 	bool isKeyHeld(SDL_Keycode p_key);
 	bool isKeyUp(SDL_Keycode p_key);
 private:
-	SDL_Event e;
 
 };

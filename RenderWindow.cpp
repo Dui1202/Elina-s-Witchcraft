@@ -39,35 +39,51 @@ void RenderWindow::cleanUp() {
 void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
-void RenderWindow::render(GameObject &p_entity) {
+//void RenderWindow::render(GameObject &p_entity) {
+//	SDL_Rect src;
+//	src.x = p_entity.getCurrentFrame().x;
+//	src.y = p_entity.getCurrentFrame().y;
+//	src.w = p_entity.getCurrentFrame().w;
+//	src.h = p_entity.getCurrentFrame().h;
+//
+//	SDL_Rect dst;
+//	dst.x = p_entity.getPos().x;
+//	dst.y = p_entity.getPos().y;
+//	dst.w = p_entity.getCurrentFrame().w*2;
+//	dst.h = p_entity.getCurrentFrame().h*2;
+//	SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
+//}
+
+void RenderWindow::renderAnimation64(Animation* p_animation) {
 	SDL_Rect src;
-	src.x = p_entity.getCurrentFrame().x;
-	src.y = p_entity.getCurrentFrame().y;
-	src.w = p_entity.getCurrentFrame().w;
-	src.h = p_entity.getCurrentFrame().h;
+	src.x = p_animation->getCurrentFrameRect().x;
+	src.y = p_animation->getCurrentFrameRect().y;
+	src.w = p_animation->getCurrentFrameRect().w;
+	src.h = p_animation->getCurrentFrameRect().h;
 
 	SDL_Rect dst;
-	dst.x = p_entity.getPos().x;
-	dst.y = p_entity.getPos().y;
-	dst.w = p_entity.getCurrentFrame().w*2;
-	dst.h = p_entity.getCurrentFrame().h*2;
-	SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
+	dst.x = p_animation->getPos().x;
+	dst.y = p_animation->getPos().y;
+	dst.w = p_animation->getCurrentFrameRect().w * 1.5;
+	dst.h = p_animation->getCurrentFrameRect().h * 1.5;
+
+	SDL_RenderCopy(renderer, p_animation->getTexture(), &src, &dst);
 }
 
-void RenderWindow::renderAnimation(Animation& p_animation) {
+void RenderWindow::renderAnimation(Animation* p_animation) {
 	SDL_Rect src;
-	src.x = p_animation.getCurrentFrameRect().x;
-	src.y = p_animation.getCurrentFrameRect().y;
-	src.w = p_animation.getCurrentFrameRect().w;
-	src.h = p_animation.getCurrentFrameRect().h;
+	src.x = p_animation->getCurrentFrameRect().x;
+	src.y = p_animation->getCurrentFrameRect().y;
+	src.w = p_animation->getCurrentFrameRect().w;
+	src.h = p_animation->getCurrentFrameRect().h;
 
 	SDL_Rect dst;
-	dst.x = p_animation.getPos().x;
-	dst.y = p_animation.getPos().y;
-	dst.w = p_animation.getCurrentFrameRect().w * 2;
-	dst.h = p_animation.getCurrentFrameRect().h * 2;
+	dst.x = p_animation->getPos().x;
+	dst.y = p_animation->getPos().y;
+	dst.w = p_animation->getCurrentFrameRect().w ;
+	dst.h = p_animation->getCurrentFrameRect().h ;
 
-	SDL_RenderCopy(renderer, p_animation.getTexture(), &src, &dst);
+	SDL_RenderCopy(renderer, p_animation->getTexture(), &src, &dst);
 }
 
 void RenderWindow::display() {

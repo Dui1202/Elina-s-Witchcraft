@@ -13,7 +13,8 @@ public:
 	void cleanUp();
 	void clear();
 	void render(GameObject &p_entity);
-	void renderAnimation(Animation& p_animate);
+	void renderAnimation64(Animation* p_animate);
+	void renderAnimation(Animation* p_animation);
 	void display();
 private:
 	SDL_Window* window;

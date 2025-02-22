@@ -5,8 +5,8 @@
 #include "Math.h"
 #include "GameObject.h"
 
-GameObject::GameObject(Vector2f p_pos, SDL_Texture* p_tex, SDL_Rect p_frame)
-	:Entity(p_pos, p_tex, p_frame), tex(p_tex), currentFrame(p_frame), pos(p_pos) {}
+GameObject::GameObject(Vector2f p_pos, Animation* p_animation)
+	:Entity(p_pos, p_animation){}
 
 void GameObject::move(Vector2f p_direction) {
 	setPos(getPos() + p_direction);

@@ -4,14 +4,12 @@
 
 #include "Entity.h"
 #include "Math.h"
+#include "Animation.h"
 class GameObject : public Entity {
 public:
-
-	GameObject(Vector2f p_pos, SDL_Texture* p_tex, SDL_Rect p_frame);
+	GameObject(Vector2f p_pos, Animation* p_animation);
 	void move(Vector2f p_direction);
-protected:
-	Vector2f pos;
-	SDL_Rect currentFrame;
-	SDL_Texture* tex;
+	//SDL_Rect currentFrame;
+	//SDL_Texture* tex;
 };
 

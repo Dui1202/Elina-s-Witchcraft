@@ -14,6 +14,10 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 	currentFrameRect = frameSrcs[0];
 }
 
+Animation::Animation() {
+
+}
+
 void Animation::update(Uint32 p_currentTime) {
 	if (p_currentTime - timeLastFrame >= timePerFrame) {
 		timeLastFrame = p_currentTime;

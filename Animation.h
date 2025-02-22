@@ -5,6 +5,7 @@
 #include <vector>
 class Animation {
 public:
+	Animation();
 	Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Rect p_frameSize, Uint32 timePerFrame);
 	void update(Uint32 p_currentTime);
 	Vector2f getPos();

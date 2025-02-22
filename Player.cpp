@@ -7,17 +7,21 @@
 #include "ProjectilesManager.h"
 
 Player::Player()
-	: GameObject(Vector2f(0,0), nullptr, {0, 0, 0, 0}){}
+	: GameObject(Vector2f(0,0), nullptr){}
 
-Player::Player(Vector2f p_pos, SDL_Texture* p_tex,  SDL_Rect p_currentFrame, Projectile p_fireball)
-	: GameObject(p_pos, p_tex, p_currentFrame), fireball(p_fireball){
+Player::Player(Vector2f p_pos, Animation* p_animation, Projectile p_fireball)
+	: GameObject(p_pos, p_animation), fireball(p_fireball){
 }
 
-void Player::shootFireball(std::vector<Projectile>& projectilesVector) {
+void Player::shootFireball(std::vector<Projectile>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles) {
 	std::cout << "Shoot Fire Ball!" << std::endl;
-	Projectile preFabFireBall(fireball);
-	preFabFireBall.setPos(getPos());
-	projectilesVector.push_back(preFabFireBall);
+	
+	Animation* newfireBallAnimation = new Animation(*p_fireBallAnimation);
+	Projectile newFireBall(fireball.getPos(), fireball.getDirection(), fireball.getSpeed(), newfireBallAnimation);
+	newFireBall.setPos(getPos());
+
+	projectilesVector.push_back(newFireBall);
+	animationProjectiles.push_back(p_fireBallAnimation);
 }
 
 Uint32 Player::getCoolDownFb() {
