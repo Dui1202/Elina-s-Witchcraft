@@ -7,8 +7,7 @@
 #include "vector"
 #include "SpawnManager.h"
 
-SpawnManager::SpawnManager(Enemy* p_enemy)
-	:enemy(p_enemy){}
+SpawnManager::SpawnManager(){}
 
 Vector2f SpawnManager::randomPos() {
     // Define range
@@ -26,7 +25,31 @@ Vector2f SpawnManager::randomPos() {
     return preSpawnPostions[randomValue];
 }
 
-void SpawnManager::spawnEnemy() {
-    Enemy* newEnenmy = new Enemy(*enemy);
-    newEnenmy->setPos(randomPos());
+void SpawnManager::spawnEnemy(std::vector<Enemy*>& enemies, std::vector<Animation*>& enemyAnimations, Enemy* p_enemy) {
+    
+    Enemy* newEnemy = new Enemy(*p_enemy);
+    Animation* newEnemyAnimation = new Animation(*(newEnemy->getAnimation()));
+    newEnemy->setAnimation(newEnemyAnimation);
+    newEnemy->setPos(randomPos());
+    SDL_Rect hb = { newEnemy->getPos().x + 10, newEnemy->getPos().y + 10, 64, 64 };
+    newEnemy->setCollider(hb);
+    
+    enemyAnimations.push_back(newEnemyAnimation);
+    enemies.push_back(newEnemy);
+}
+
+void SpawnManager::setLastTime(Uint32 p_lastTime) {
+    lastTime = p_lastTime;
+}
+
+void SpawnManager::setCooldown(Uint32 p_cooldown) {
+    cooldown = p_cooldown;
+}
+
+Uint32 SpawnManager::getCooldown() {
+    return cooldown;
+}
+
+Uint32 SpawnManager::getLastTime() {
+    return lastTime;
 }

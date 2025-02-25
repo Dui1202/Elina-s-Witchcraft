@@ -13,12 +13,12 @@ Player::Player(Vector2f p_pos, Animation* p_animation, Projectile p_fireball)
 	: GameObject(p_pos, p_animation), fireball(p_fireball){
 }
 
-void Player::shootFireball(std::vector<Projectile>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles) {
+void Player::shootFireball(std::vector<Projectile*>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles) {
 	std::cout << "Shoot Fire Ball!" << std::endl;
 	
 	Animation* newfireBallAnimation = new Animation(*p_fireBallAnimation);
-	Projectile newFireBall(fireball.getPos(), fireball.getDirection(), fireball.getSpeed(), newfireBallAnimation);
-	newFireBall.setPos(getPos());
+	Projectile* newFireBall = new Projectile(fireball.getPos(), fireball.getDirection(), fireball.getSpeed(), fireball.getStr(), newfireBallAnimation);
+	newFireBall->setPos(getPos());
 
 	projectilesVector.push_back(newFireBall);
 	animationProjectiles.push_back(p_fireBallAnimation);

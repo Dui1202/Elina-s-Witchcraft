@@ -10,7 +10,7 @@ class Player : public GameObject {
 public:
 	Player();
 	Player(Vector2f p_pos, Animation* p_animation, Projectile p_fireball);
-	void shootFireball(std::vector<Projectile>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles);
+	void shootFireball(std::vector<Projectile*>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles);
 	Uint32 getCoolDownFb();
 	Uint32 getLastShotFb();
 	void setLastShotFb(Uint32 p_lastShot);

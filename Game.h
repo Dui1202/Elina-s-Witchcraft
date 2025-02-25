@@ -11,29 +11,44 @@
 #include "ProjectilesManager.h"
 #include "Animation.h"
 #include "InputManager.h"
+#include "Enemy.h"
+#include "SpawnManager.h"
 
 class Game {
 public:
 	Game();
 	void start();
 	void update();
+	void debug();
 	void graphic();
 	void logic();
 	void input(SDL_Event &e, Vector2f& p_movement);
 	void clean();
 	//Destroy out of bound Projectiles
-	void destroyProjectiles();
+	void destroyOutOfBound();
+	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
+	void destroyProjectile(Projectile* p_projectile, std::vector<Projectile*>::iterator& p_prjIt);
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
 	InputManager inputManager;
+	SpawnManager spawnManager;
+
+	//Prefabs
 	std::vector<GameObject*> gameObjectPrefabs;
 	std::vector<Projectile*> projectilePrefabs;
-	std::vector<Projectile> projectiles;
+	std::vector<Animation*> animationPrefabs;
+	std::vector<Enemy*> enemyPrefabs;
+
+	//In-game
+	std::vector<Projectile*> projectiles;
+	std::vector<GameObject> gameObjectGrass;
+	std::vector<Enemy*> enemies;
+
 	std::vector<Animation*> animationProjectiles;
 	std::vector<Animation*> animationGrass;
-	std::vector<GameObject> gameObjectGrass;
-	std::vector<Animation*> animations;
+	std::vector<Animation*> animationEnemies;
+
 	Player* player;
 	Uint32 currentTime;
 	float playerSpeed = 0;

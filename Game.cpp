@@ -10,6 +10,8 @@
 #include "ResourceManager.h"
 #include "InputManager.h"
 #include "Animation.h"
+#include "Enemy.h"
+#include "Collision.h"
 
 //Initalize window, resourceManager,
 Game::Game()
@@ -25,6 +27,7 @@ void Game::start() {
 		"./asset/slime-move-sprite.png"
 	};
 	resourceManager.loadTexture(allTexturePaths);
+
 	//Set textures
 	SDL_Texture* playerTexture = resourceManager.getTexture(allTexturePaths[0]);
 	SDL_Texture* grassTexture = resourceManager.getTexture(allTexturePaths[1]);
@@ -38,6 +41,11 @@ void Game::start() {
 	//Set some in-game varibles
 	playerSpeed = 5;
 	float fireBallSpeed = 10;
+	float fireBallStr = 5;
+	float slimeSpeed = 3;
+	float slimeHp = 10;
+
+	Collider slimeCollider(SDL_Rect({ 1,1, 100, 100 }));
 
 	//Set Animation
 	Animation* slimeAnimation = new Animation(Vector2f(0, 0), slimeTexture, 1, defaultFrame, 100);
@@ -45,30 +53,70 @@ void Game::start() {
 	Animation* fireBallAnimation = new Animation(Vector2f(0, 0), fireballTexture, 2, defaultFrame, 100);
 
 	//Set projectiles
-	Projectile* fireball = new Projectile(Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallAnimation);
+	Projectile* fireball = new Projectile(Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallAnimation);
 
 	//Set player
-	player = new Player(Vector2f(0, 0), nullptr, *fireball);
+	player = new Player(Vector2f(0, 362), nullptr, *fireball);
 	Animation* playerIdleAnimation = new Animation(player->getPos(), playerTexture, 2, defaultFrame, 300);
 	player->setAnimation(playerIdleAnimation);
-	projectilePrefabs.push_back(fireball);
+	
+	//Set enemies
+	Enemy* slime = new Enemy(Vector2f(0, 0), slimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp);
 
 	//Push all animations for easier deconstruction
-	animations.push_back(playerIdleAnimation);
-	animations.push_back(fireBallAnimation);
-	animations.push_back(grassAnimation);
-	animations.push_back(slimeAnimation);
+	animationPrefabs.push_back(playerIdleAnimation);
+	animationPrefabs.push_back(fireBallAnimation);
+	animationPrefabs.push_back(grassAnimation);
+	animationPrefabs.push_back(slimeAnimation);
+
+	projectilePrefabs.push_back(fireball);
+
+	enemyPrefabs.push_back(slime);
+}
+
+void Game::debug() {
+
+	for (auto& ene : enemies) {
+		ene->getCollider().drawCollider(window.getRenderer());
+	}
+	
+	for (auto& prj : projectiles) {
+		prj->getCollider().drawCollider(window.getRenderer());
+	}
 }
 
 void Game::logic() {
-
+	for (auto pjIt = projectiles.begin(); pjIt != projectiles.end();) {
+		bool isDestroy = false;
+		for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ++eneIt) {
+			if ((*pjIt)->getCollider().checkCollide((*eneIt)->getCollider())) {
+				std::cout << "Collide with enemy!" << std::endl;
+				(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+				std::cout << (*pjIt)->getStr() << std::endl;
+				destroyProjectile(*pjIt, pjIt);
+				std::cout << "1!" << std::endl;
+				std::cout << ((*eneIt)->getHp()) << std::endl;
+				std::cout << "2!" << std::endl;
+				if ((*eneIt)->getHp() <= 0) {
+					destroyEnemy(*eneIt, eneIt);
+				}
+				std::cout << "3!" << std::endl;
+				isDestroy = true;
+				break;
+			}
+		}
+		if (!isDestroy)
+		{
+			++pjIt;
+		}
+	}
 }
 
 void Game::graphic() {
 	//Set grass field in the game
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 9; j++) {
-			Animation* newGrassAnimation = new Animation(*animations[2]);
+			Animation* newGrassAnimation = new Animation(*animationPrefabs[2]);
 			animationGrass.push_back(newGrassAnimation);
 			GameObject newGrassGO(Vector2f(0,0), newGrassAnimation);
 
@@ -94,16 +142,13 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 	if (inputManager.keyStates[SDLK_s]) p_movement.y += 1;
 	if (currentTime - player->getLastShotFb() >= player->getCoolDownFb()) {
 		if (inputManager.keyStates[SDLK_SPACE]) {
-			player->shootFireball(projectiles, animations[1], animationProjectiles);
+			player->shootFireball(projectiles, animationPrefabs[1], animationProjectiles);
 			player->setLastShotFb(currentTime);
 		};
 	}
 
 	p_movement.normalize();
-
-	p_movement.print();
-
-	
+	//p_movement.print();
 }
 
 //Main game loop
@@ -120,8 +165,10 @@ void Game::update() {
 
 	//References
 	Projectile* fireball = projectilePrefabs[0];
-	Animation* playerIdleAnimation = animations[0];
-	Animation* fireBallAnimation = animations[1];
+	Enemy* slime = enemyPrefabs[0];
+	Animation* playerIdleAnimation = animationPrefabs[0];
+	Animation* fireBallAnimation = animationPrefabs[1];
+	
 
 	Vector2f movement(0, 0);
 	//The main game loop
@@ -140,23 +187,38 @@ void Game::update() {
 			}
 			accumulator -= timeStep;
 		}
-
+		if (currentTime - spawnManager.getLastTime() >= spawnManager.getCooldown()) {
+			spawnManager.spawnEnemy(enemies, animationEnemies, slime);
+			spawnManager.setLastTime(currentTime);
+		}
+		
+		logic();
 		//Player movement
 		player->move(movement * playerSpeed);
 		playerIdleAnimation->setPos(player->getPos());
 
 		//Fireball movement
 		for (auto& fb : projectiles) {
-			fb.update(player->getPos(), currentTime);
+			fb->update(player->getPos(), currentTime);
 		}
 
+		//Slime movement
+		for (auto& ene : enemies) {
+			ene->update(currentTime);
+		}
+
+
+
 		//Destroy out of bound projectiles
-		destroyProjectiles();
+		destroyOutOfBound();
 
 		//Clear the screen
 		window.clear();
 
+		SDL_SetRenderDrawColor(window.getRenderer(), 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_RenderClear(window.getRenderer());
 		//Draw the screen
+		
 			//Render Grass
 		for (auto& grass : gameObjectGrass) {
 			window.renderAnimation(grass.getAnimation());
@@ -168,8 +230,16 @@ void Game::update() {
 
 			//Render FireBall
 		for (auto& fb : projectiles) {
-			window.renderAnimation64(fb.getAnimation());
+			window.renderAnimation64(fb->getAnimation());
 		}
+			
+			//Render Enemies
+		for (auto& sl : enemies) {
+			window.renderAnimation64(sl->getAnimation());
+		}
+
+		debug();
+		
 
 		//Show screen
 		window.display();
@@ -194,8 +264,11 @@ void Game::clean() {
 
 	//Destroy window and renderer
 	window.cleanUp();
+	for (GameObject* go : gameObjectPrefabs) {
+		delete go;
+	}
 
-	for (Animation* anim : animations) {
+	for (Animation* anim : animationPrefabs) {
 		delete anim;
 	}
 	
@@ -203,22 +276,40 @@ void Game::clean() {
 		delete pj;
 	}
 
+	for (Enemy* ene : enemyPrefabs) {
+		delete ene;
+	}
+
 	for (Animation* anim : animationGrass) {
 		delete anim;
 	}
 
-	animations.clear();
-	animationGrass.clear();
+	for (Animation* anim : animationEnemies) {
+		delete anim;
+	}
+
+	for (Animation* anim : animationProjectiles) {
+		delete anim;
+	}
+
+
+	gameObjectPrefabs.clear();
+	animationPrefabs.clear();
 	projectilePrefabs.clear();
+	enemyPrefabs.clear();
+	animationGrass.clear();
+	animationEnemies.clear();
+	animationProjectiles.clear();
+
 	
 	delete player;
 }
 
-
-void Game::destroyProjectiles() {
+void Game::destroyOutOfBound() {
 	for (auto i = 0; i < projectiles.size();) {
-		if (projectiles[i].getPos().x >= 1280 || projectiles[i].getPos().y >= 720) {
-			delete projectiles[i].getAnimation();
+		if (projectiles[i]->getPos().x >= 1280 || projectiles[i]->getPos().y >= 720) {
+			delete projectiles[i]->getAnimation();
+			animationProjectiles.erase(animationProjectiles.begin() + i);
 			projectiles.erase(projectiles.begin() + i);
 			std::cout << "Projectile destroyed!"<<std::endl;
 		}
@@ -226,4 +317,45 @@ void Game::destroyProjectiles() {
 			i++;
 		}
 	}
+
+	for (auto i = 0; i < enemies.size();) {
+		if (enemies[i]->getPos().x < -100 || enemies[i]->getPos().y <0) {
+			delete enemies[i]->getAnimation();
+			animationEnemies.erase(animationEnemies.begin() + i);
+			enemies.erase(enemies.begin() + i);
+			std::cout << "Enemy destroyed!" << std::endl;
+		}
+		else {
+			i++;
+		}
+	}
+}
+
+ 
+void Game::destroyProjectile(Projectile* p_projectile,std::vector<Projectile*>::iterator& p_prjIt) {
+	auto prjIt = std::find(projectiles.begin(), projectiles.end(), p_projectile);
+	auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), p_projectile->getAnimation());
+
+	if (prjIt == projectiles.end()) {
+		std::cout << "Didn't find projectile to destroy!" << std::endl;
+		return;
+	}
+	
+	delete p_projectile;
+
+	p_prjIt = projectiles.erase(prjIt);
+}
+
+void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) {
+	auto eneIt = std::find(enemies.begin(), enemies.end(), p_enemy);
+	auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), p_enemy->getAnimation());
+
+	if (eneIt == enemies.end()) {
+		std::cout << "Didn't find an enemy to destroy!" << std::endl;
+		return;
+	}
+
+	delete p_enemy;
+
+	p_eneIt = enemies.erase(eneIt);
 }
