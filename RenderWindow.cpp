@@ -85,6 +85,20 @@ void RenderWindow::renderAnimation(Animation* p_animation) {
 
 	SDL_RenderCopy(renderer, p_animation->getTexture(), &src, &dst);
 }
+void RenderWindow::renderUI(Button* p_ui) {
+	renderAnimation(p_ui->getAnimation());
+	renderText(p_ui->getText());
+}
+
+void RenderWindow::renderText(Text* p_text) {
+	SDL_Rect dst;
+	dst.x = p_text->getPos().x;
+	dst.y = p_text->getPos().y;
+	dst.w = p_text->getWidth() ;
+	dst.h = p_text->getHeight() ;
+
+	SDL_RenderCopy(renderer, p_text->getTextTexture(), NULL, &dst);
+}
 
 void RenderWindow::display() {
 	SDL_RenderPresent(renderer);

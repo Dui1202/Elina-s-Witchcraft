@@ -17,7 +17,11 @@ int main(int argc, char* agrs[]) {
 	}
 
 	if (!IMG_Init(IMG_INIT_PNG)) {
-		std::cout << "Failed to init IMG! Error: " << SDL_GetError() << std::endl;
+		std::cout << "Failed to init IMG! Error: " << IMG_GetError() << std::endl;
+	}
+
+	if (TTF_Init() == -1) {
+		std::cout << "Failed to init TTF! Error: " << TTF_GetError() << std::endl;
 	}
 	Game newGame;
 	newGame.start();

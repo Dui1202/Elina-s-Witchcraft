@@ -153,6 +153,8 @@
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SpawnManager.cpp" />
+    <ClCompile Include="Text.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -168,6 +170,8 @@
     <ClInclude Include="RenderWindow.hpp" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SpawnManager.h" />
+    <ClInclude Include="Text.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

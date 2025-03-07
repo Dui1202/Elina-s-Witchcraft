@@ -15,7 +15,6 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 }
 
 Animation::Animation() {
-
 }
 
 void Animation::update(Uint32 p_currentTime) {

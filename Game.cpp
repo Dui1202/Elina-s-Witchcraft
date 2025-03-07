@@ -12,6 +12,15 @@
 #include "Animation.h"
 #include "Enemy.h"
 #include "Collision.h"
+#include "UI.h"
+
+
+
+void settingsButtonFunction() {
+	
+}
+
+
 
 //Initalize window, resourceManager,
 Game::Game()
@@ -24,7 +33,11 @@ void Game::start() {
 		"./asset/player/witch-idle-sprite-sheet.png",
 		"./asset/grass.png",
 		"./asset/fireball_sprite.png",
-		"./asset/slime-move-sprite.png"
+		"./asset/slime-move-sprite.png",
+		"./asset/UI/button_normal.png",
+		"./asset/UI/button_hover.png",
+		"./asset/UI/button_active.png",
+		"./asset/UI/modal.png"
 	};
 	resourceManager.loadTexture(allTexturePaths);
 
@@ -33,10 +46,16 @@ void Game::start() {
 	SDL_Texture* grassTexture = resourceManager.getTexture(allTexturePaths[1]);
 	SDL_Texture* fireballTexture = resourceManager.getTexture(allTexturePaths[2]);
 	SDL_Texture* slimeTexture = resourceManager.getTexture(allTexturePaths[3]);
+	SDL_Texture* buttonNormalTexture = resourceManager.getTexture(allTexturePaths[4]);
+	SDL_Texture* buttonHoverTexture = resourceManager.getTexture(allTexturePaths[5]);
+	SDL_Texture* buttonActiveTexture = resourceManager.getTexture(allTexturePaths[6]);
+	SDL_Texture* modalTexture = resourceManager.getTexture(allTexturePaths[7]);
 
 	//Set some frames
 	SDL_Rect defaultFrame = { 0, 0 , 64, 64 };
 	SDL_Rect grassFrame = { 0, 0, 240, 120 };
+	SDL_Rect buttonFrame = { 0, 0, 128 , 64 };
+	SDL_Rect modalFrame = { 0, 0, 600, 600 };
 
 	//Set some in-game varibles
 	playerSpeed = 5;
@@ -51,6 +70,39 @@ void Game::start() {
 	Animation* slimeAnimation = new Animation(Vector2f(0, 0), slimeTexture, 1, defaultFrame, 100);
 	Animation* grassAnimation = new Animation(Vector2f(0, 0), grassTexture, 1, grassFrame, 100);
 	Animation* fireBallAnimation = new Animation(Vector2f(0, 0), fireballTexture, 2, defaultFrame, 100);
+	Animation* buttonNormalAnimation = new Animation(Vector2f(0, 0), buttonNormalTexture, 1, buttonFrame, 100);
+	Animation* buttonHoverAnimation = new Animation(Vector2f(0, 0), buttonHoverTexture, 1, buttonFrame, 100);
+	Animation* buttonActiveAnimation = new Animation(Vector2f(0, 0), buttonActiveTexture, 1, buttonFrame, 100);
+	Animation* modalAnimation = new Animation(Vector2f(0, 0), modalTexture, 1, modalFrame, 100);
+
+	//Set text
+	TTF_Font* normalFont = TTF_OpenFont("./asset/font/Roboto/font.ttf", 20);
+	TTF_Font* boldFont = TTF_OpenFont("./asset/font/Roboto/static/Roboto_Condensed-SemiBold.ttf", 32);
+	SDL_Color black = { 0, 0, 0, 255 };
+	SDL_Color white = { 255, 255, 255, 255 };
+	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normalFont);
+	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normalFont);
+	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normalFont);
+	Text* playText = new Text("Play", Vector2f(0, 0), black, window.getRenderer(), normalFont);
+	Text* quitText = new Text("Quit", Vector2f(0, 0), black, window.getRenderer(), normalFont);
+	Text* settingsModalText = new Text("Settings", Vector2f(0, 0), white, window.getRenderer(), boldFont);
+
+	//Set button
+	Button* settingsButton = new Button(Vector2f(1100, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, settingsButtonFunction);
+	Button* menuButton = new Button(Vector2f(1100, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, settingsButtonFunction);
+	Button* resumeButton = new Button(Vector2f(1100, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, resumeText, settingsButtonFunction);
+	Button* playButton = new Button(Vector2f(1100, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, settingsButtonFunction);
+	Button* quitButton = new Button(Vector2f(1100, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, settingsButtonFunction);
+
+	//Set of buttons
+	buttonsInSettingModal.push_back(menuButton);
+	buttonsInSettingModal.push_back(resumeButton);
+
+	buttonsInMenu.push_back(playButton);
+	buttonsInMenu.push_back(quitButton);
+
+	//Set modal
+	Modal* settingModal = new Modal(buttonsInSettingModal, "Settings");
 
 	//Set projectiles
 	Projectile* fireball = new Projectile(Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallAnimation);
@@ -68,10 +120,27 @@ void Game::start() {
 	animationPrefabs.push_back(fireBallAnimation);
 	animationPrefabs.push_back(grassAnimation);
 	animationPrefabs.push_back(slimeAnimation);
+	animationPrefabs.push_back(buttonNormalAnimation);
+	animationPrefabs.push_back(buttonActiveAnimation);
+	animationPrefabs.push_back(buttonHoverAnimation);
+	animationPrefabs.push_back(modalAnimation);
 
 	projectilePrefabs.push_back(fireball);
 
 	enemyPrefabs.push_back(slime);
+
+	texts.push_back(settingsText);
+	texts.push_back(menuText);
+	texts.push_back(resumeText);
+	texts.push_back(playText);
+	texts.push_back(quitText);
+	texts.push_back(settingsModalText);
+
+	buttons.push_back(settingsButton);
+	buttons.push_back(menuButton);
+	buttons.push_back(resumeButton);
+	buttons.push_back(playButton);
+	buttons.push_back(quitButton);
 }
 
 void Game::debug() {
@@ -86,6 +155,7 @@ void Game::debug() {
 }
 
 void Game::logic() {
+	//Check collision of player's projectiles and enemies
 	for (auto pjIt = projectiles.begin(); pjIt != projectiles.end();) {
 		bool isDestroy = false;
 		for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ++eneIt) {
@@ -147,6 +217,10 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 		};
 	}
 
+	for (auto& btn : buttons) {
+		btn->handleInput(e);
+	}
+
 	p_movement.normalize();
 	//p_movement.print();
 }
@@ -170,6 +244,7 @@ void Game::update() {
 	Animation* fireBallAnimation = animationPrefabs[1];
 	
 
+
 	Vector2f movement(0, 0);
 	//The main game loop
 	while (isGameRunning) {
@@ -184,6 +259,9 @@ void Game::update() {
 					isGameRunning = false;
 				}
 				input(e, movement);
+				if (e.type == SDL_MOUSEBUTTONDOWN) {
+					
+				}
 			}
 			accumulator -= timeStep;
 		}
@@ -236,6 +314,10 @@ void Game::update() {
 			//Render Enemies
 		for (auto& sl : enemies) {
 			window.renderAnimation64(sl->getAnimation());
+		}
+
+		for (auto& btn : buttons) {
+			window.renderUI(buttons[0]);
 		}
 
 		debug();
@@ -292,6 +374,9 @@ void Game::clean() {
 		delete anim;
 	}
 
+	for (Animation* anim : animationGrass) {
+		delete anim;
+	}
 
 	gameObjectPrefabs.clear();
 	animationPrefabs.clear();
@@ -300,33 +385,43 @@ void Game::clean() {
 	animationGrass.clear();
 	animationEnemies.clear();
 	animationProjectiles.clear();
+	animationGrass.clear();
 
 	
 	delete player;
 }
 
 void Game::destroyOutOfBound() {
-	for (auto i = 0; i < projectiles.size();) {
-		if (projectiles[i]->getPos().x >= 1280 || projectiles[i]->getPos().y >= 720) {
-			delete projectiles[i]->getAnimation();
-			animationProjectiles.erase(animationProjectiles.begin() + i);
-			projectiles.erase(projectiles.begin() + i);
+	for (auto prjIt = projectiles.begin(); prjIt != projectiles.end();) {
+		if ((*prjIt)->getPos().x >= 1280 || (*prjIt)->getPos().y >= 720) {
+			auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
+			if (animIt != animationProjectiles.end()) {
+				delete* animIt;
+				animationProjectiles.erase(animIt);
+
+			}	
+			delete *prjIt;
+			prjIt = projectiles.erase(prjIt);
 			std::cout << "Projectile destroyed!"<<std::endl;
 		}
 		else {
-			i++;
+			++prjIt;
 		}
 	}
 
-	for (auto i = 0; i < enemies.size();) {
-		if (enemies[i]->getPos().x < -100 || enemies[i]->getPos().y <0) {
-			delete enemies[i]->getAnimation();
-			animationEnemies.erase(animationEnemies.begin() + i);
-			enemies.erase(enemies.begin() + i);
+	for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ) {
+		if ((*eneIt)->getPos().x < -100 || (*eneIt)->getPos().y <0) {
+			auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), (*eneIt)->getAnimation());
+			if (animIt != animationEnemies.end()) {
+				delete* animIt;
+				animationEnemies.erase(animIt);
+			}
+			delete *eneIt;
+			eneIt = enemies.erase(eneIt);
 			std::cout << "Enemy destroyed!" << std::endl;
 		}
 		else {
-			i++;
+			++eneIt;
 		}
 	}
 }
@@ -340,9 +435,8 @@ void Game::destroyProjectile(Projectile* p_projectile,std::vector<Projectile*>::
 		std::cout << "Didn't find projectile to destroy!" << std::endl;
 		return;
 	}
-	
-	delete p_projectile;
 
+	delete p_projectile;
 	p_prjIt = projectiles.erase(prjIt);
 }
 

@@ -13,12 +13,14 @@
 #include "InputManager.h"
 #include "Enemy.h"
 #include "SpawnManager.h"
+#include "UI.h"
 
 class Game {
 public:
 	Game();
 	void start();
 	void update();
+	void pause();
 	void debug();
 	void graphic();
 	void logic();
@@ -44,6 +46,11 @@ private:
 	std::vector<Projectile*> projectiles;
 	std::vector<GameObject> gameObjectGrass;
 	std::vector<Enemy*> enemies;
+	std::vector<Text*> texts;
+	std::vector<Button*> buttons;
+	std::vector<Button*> buttonsInSettingModal;
+	std::vector<Button*> buttonsInMenu;
+	std::vector<Modal*> modals;
 
 	std::vector<Animation*> animationProjectiles;
 	std::vector<Animation*> animationGrass;

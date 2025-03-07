@@ -4,6 +4,8 @@
 #include"Entity.h"
 #include "GameObject.h"
 #include "Animation.h"
+#include "UI.h"
+#include "Text.h"
 
 class RenderWindow {
 public:
@@ -15,6 +17,8 @@ public:
 	void render(GameObject &p_entity);
 	void renderAnimation64(Animation* p_animate);
 	void renderAnimation(Animation* p_animation);
+	void renderUI(Button* p_ui);
+	void renderText(Text* p_text);
 	void display();
 private:
 	SDL_Window* window;

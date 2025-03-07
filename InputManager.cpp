@@ -1,6 +1,7 @@
 #include<SDL.h>
 #include"InputManager.h"
 #include"Player.h"
+#include "UI.h"
 
 InputManager::InputManager() 
 {}
@@ -11,6 +12,7 @@ void InputManager::handleInput(const SDL_Event &e) {
     }
     else if (e.type == SDL_KEYUP) {
         keyStates[e.key.keysym.sym] = false; // Mark key as released
-    }
+    } 
+
 }
 
