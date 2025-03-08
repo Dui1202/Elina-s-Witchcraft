@@ -9,7 +9,7 @@
 #include "Animation.h"
 
 RenderWindow::RenderWindow(const char* title, int p_w, int p_h)
-	:window(NULL), renderer(NULL) {
+	:window(NULL), renderer(NULL), h(p_h), w(p_w){
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
 	if (window == NULL) {
 		std::cout << "Failed to initialize window! Error: " << SDL_GetError << std::endl;
@@ -90,6 +90,10 @@ void RenderWindow::renderUI(Button* p_ui) {
 	renderText(p_ui->getText());
 }
 
+void RenderWindow::renderUI(Modal* p_ui) {
+	renderAnimation(p_ui->getAnimation());
+}
+
 void RenderWindow::renderText(Text* p_text) {
 	SDL_Rect dst;
 	dst.x = p_text->getPos().x;
@@ -102,4 +106,12 @@ void RenderWindow::renderText(Text* p_text) {
 
 void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
+}
+
+float RenderWindow::getHeight() {
+	return h;
+}
+
+float RenderWindow::getWidth() {
+	return w;
 }

@@ -6,8 +6,15 @@
 #include "Animation.h"
 #include "UI.h"
 
-UI::UI(Vector2f p_pos, Animation* p_animation)
-	:pos(p_pos), animation(p_animation){
+UI::UI(Vector2f p_pos, Animation* p_animation, std::vector<Animation*> &p_animationUIs)
+	:pos(p_pos){
+	Animation* newAnimation = new Animation(*p_animation);
+	animation = newAnimation;
+
+	h = getAnimation()->getCurrentFrameRect().h;
+	w = getAnimation()->getCurrentFrameRect().w;
+
+	p_animationUIs.push_back(newAnimation);
 }
 
 Vector2f UI::getPos() {
@@ -16,6 +23,7 @@ Vector2f UI::getPos() {
 
 void UI::setPos(Vector2f p_pos){
 	pos = p_pos;
+	getAnimation()->setPos(p_pos);
 }
 
 Animation* UI::getAnimation() {
@@ -26,16 +34,44 @@ void UI::setAnimation(Animation* p_animation) {
 	animation = p_animation;
 }
 
-Button::Button(Vector2f p_pos, Animation* p_normalAnimation, Animation* p_hoverAnimation, Animation* p_activeAnimation, Text* p_text, std::function<void()> p_function)
-	: UI(p_pos, p_normalAnimation), normalAnimation(p_normalAnimation), hoverAnimation(p_hoverAnimation), activeAnimation(p_activeAnimation), text(p_text), onClick(p_function) {
-	h = animation->getCurrentFrameRect().h;
-	w = animation->getCurrentFrameRect().w;
+float UI::getWidth() {
+	return w;
+}
+
+float UI::getHeight() {
+	return h;
+}
+
+Button::Button(Vector2f p_pos, Animation* p_normalAnimation, Animation* p_hoverAnimation, Animation* p_activeAnimation, Text* p_text, std::vector<Animation*>& p_animationUIs, std::function<void()> p_function)
+	: UI(p_pos, p_normalAnimation, p_animationUIs), text(p_text), onClick(p_function) {
+
+
+	//Set the text's position in the center of the button
 	Vector2f textPos(getPos() + Vector2f( w / 2, h / 2) - Vector2f(text->getWidth()/2, text->getHeight()/2));
 	text->setPos(textPos);
+
+	normalAnimation = animation;
+	Animation* newHoverAnimation = new Animation(*p_hoverAnimation);
+	Animation* newActiveAnimation = new Animation(*p_activeAnimation);
+
+	hoverAnimation = newHoverAnimation;
+	activeAnimation = newActiveAnimation;
+
 	getAnimation()->setPos(p_pos);
 	normalAnimation->setPos(p_pos);
 	hoverAnimation->setPos(p_pos);
 	activeAnimation->setPos(p_pos);
+
+	p_animationUIs.push_back(newHoverAnimation);
+	p_animationUIs.push_back(newActiveAnimation);
+}
+
+void Button::setPos(Vector2f p_pos) {
+	animation->setPos(p_pos);
+	hoverAnimation->setPos(p_pos);
+	activeAnimation->setPos(p_pos);
+	text->setPos(text->getPos() + p_pos);
+	pos = p_pos;
 }
 
 bool Button::isOnClick(const SDL_Event& e) {
@@ -98,16 +134,17 @@ bool Button::isOn() {
 }
 
 void Button::handleInput(const SDL_Event &p_e) {
-
-	if (isOnClick(p_e)) {
-		onClick();
-		setAnimation(activeAnimation);
-	}
-	else if (isOn()) {
-		setAnimation(hoverAnimation);
-	}
-	else {
-		setAnimation(normalAnimation);
+	if (getVisible()) {
+		if (isOnClick(p_e)) {
+			onClick();
+			setAnimation(activeAnimation);
+		}
+		else if (isOn()) {
+			setAnimation(hoverAnimation);
+		}
+		else {
+			setAnimation(normalAnimation);
+		}
 	}
 }
 
@@ -115,24 +152,66 @@ Text* Button::getText() {
 	return text;
 }
 
-Modal::Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*> &p_buttons, Text* p_heading) 
-	:UI(p_pos, p_animation), buttons(p_buttons), text(p_heading)
+void Button::setVisible(bool p_bool) {
+	isVisible = p_bool;
+}
+
+bool Button::getVisible() {
+	return isVisible;
+}
+
+Modal::Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*> &p_buttons, Text* p_heading, std::vector<Animation*> &p_animationUIs) 
+	:UI(p_pos, p_animation, p_animationUIs), buttons(p_buttons), text(p_heading)
 {
 	close();
 }
 	
+void Modal::setPos(Vector2f p_pos) {
+	int i = 0;
+	animation->setPos(p_pos);
+	text->setPos(p_pos);
+	pos = p_pos;
+
+	for (auto& btn : buttons) {
+		
+		btn->setPos(p_pos + Vector2f(getWidth() / 2, 20 + i * 80 ) - Vector2f(btn->getAnimation()->getCurrentFrameRect().w / 2, 0));
+		i++;
+	}
+}
 
 void Modal::close() {
-	setPos(getPos() + Vector2f(2000, 2000));
+	setIsOpen(false);
 	for (auto& btn : buttons) {
-		btn->setPos(btn->getPos() + Vector2f(2000, 2000));
-		btn->getAnimation()->setPos()
+		btn->setVisible(false);
 	}
 }
 
 void Modal::open() {
-	setPos(getPos() - Vector2f(2000, 2000));
+	setIsOpen(true);
+	for (auto& btn : buttons) {
+		btn->setVisible(true);
+;	}
 }
 
+bool Modal::getIsOpen() {
+	return isOpen;
+}
 
+void Modal::setIsOpen(bool p_bool) {
+	isOpen = p_bool;
+}
 
+SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
+	: UI(p_pos, p_activeAnimation, p_animationUIs) {
+	Animation* newActiveAnimation = new Animation(*p_activeAnimation);
+	Animation* newOnCoolDownAnimation = new Animation(*p_onCoolDownAnimation);
+	Bar* newBar = new Bar(*p_bar);
+
+	activeAnimation = newActiveAnimation;
+	onCoolDownAnimation = newOnCoolDownAnimation;
+	coolDownBar = newBar;
+
+	p_animationUIs.push_back(newActiveAnimation);
+	p_animationUIs.push_back(newOnCoolDownAnimation);
+	p_bars.push_back(newBar);
+}

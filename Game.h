@@ -30,6 +30,9 @@ public:
 	void destroyOutOfBound();
 	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
 	void destroyProjectile(Projectile* p_projectile, std::vector<Projectile*>::iterator& p_prjIt);
+
+	//Button functions
+	void settingsButtonFunction();
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
@@ -55,8 +58,16 @@ private:
 	std::vector<Animation*> animationProjectiles;
 	std::vector<Animation*> animationGrass;
 	std::vector<Animation*> animationEnemies;
+	std::vector<Animation*> animationUIs;
 
 	Player* player;
 	Uint32 currentTime;
 	float playerSpeed = 0;
+
+	Uint32 startPause = 0;
+	Uint32 lastPause = 0;
+	Uint32 timePause = 0;
+
+	bool isGamePause = false;
+	bool isGameOver = true;
 };

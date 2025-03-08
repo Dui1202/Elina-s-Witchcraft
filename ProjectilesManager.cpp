@@ -1,12 +1,13 @@
 #include "GameObject.h"
 #include "Math.h"
 #include "ProjectilesManager.h"
+#include <iostream>
 
 Projectile::Projectile()
 	:GameObject(Vector2f(0, 0), nullptr), direction(Vector2f(0,0)), speed(0){}
 
-Projectile::Projectile(Vector2f p_pos, Vector2f p_shootDir, float p_speed,float p_str, Animation* p_animation)
-: GameObject(p_pos, p_animation), direction(p_shootDir), speed(p_speed), str(p_str){
+Projectile::Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, float p_speed, float p_str, Animation* p_animation)
+: GameObject(p_pos, p_animation), name(p_name), direction(p_shootDir), speed(p_speed), str(p_str){
 }
 
 void Projectile::update(Vector2f startpos, Uint32 currentTime) {
@@ -41,4 +42,16 @@ void Projectile::setCollider(Collider p_collider) {
 
 float Projectile::getStr() {
 	return str;
+}
+
+void Projectile::setStr(float p_str) {
+	str = p_str;
+}
+
+std::string Projectile::getName() {
+	return name;
+}
+
+void Projectile::setName(std::string p_name) {
+	name = p_name;
 }

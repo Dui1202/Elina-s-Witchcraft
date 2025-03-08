@@ -9,19 +9,20 @@
 Player::Player()
 	: GameObject(Vector2f(0,0), nullptr){}
 
-Player::Player(Vector2f p_pos, Animation* p_animation, Projectile p_fireball)
-	: GameObject(p_pos, p_animation), fireball(p_fireball){
+Player::Player(Vector2f p_pos, Animation* p_animation, std::vector<Projectile*> &p_projectilePrefabs)
+	: GameObject(p_pos, p_animation), projectilePrefabs(p_projectilePrefabs){
+	currentProjectile = projectilePrefabs[0];
 }
 
-void Player::shootFireball(std::vector<Projectile*>& projectilesVector, Animation* p_fireBallAnimation, std::vector<Animation*>& animationProjectiles) {
-	std::cout << "Shoot Fire Ball!" << std::endl;
+void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::vector<Animation*>& animationProjectiles) {
+	std::cout << "Shoot "<< currentProjectile->getName() <<"!" << std::endl;
 	
-	Animation* newfireBallAnimation = new Animation(*p_fireBallAnimation);
-	Projectile* newFireBall = new Projectile(fireball.getPos(), fireball.getDirection(), fireball.getSpeed(), fireball.getStr(), newfireBallAnimation);
-	newFireBall->setPos(getPos());
+	Animation* newProjectileAnimation = new Animation(*(currentProjectile->getAnimation()));
+	Projectile* newProjectile = new Projectile(currentProjectile->getName(), currentProjectile->getPos(), currentProjectile->getDirection(), currentProjectile->getSpeed(), currentProjectile->getStr(), newProjectileAnimation);
+	newProjectile->setPos(getPos());
 
-	projectilesVector.push_back(newFireBall);
-	animationProjectiles.push_back(p_fireBallAnimation);
+	projectilesVector.push_back(newProjectile);
+	animationProjectiles.push_back(newProjectileAnimation);
 }
 
 Uint32 Player::getCoolDownFb() {

@@ -18,9 +18,14 @@ public:
 	void renderAnimation64(Animation* p_animate);
 	void renderAnimation(Animation* p_animation);
 	void renderUI(Button* p_ui);
+	void renderUI(Modal* p_ui);
 	void renderText(Text* p_text);
 	void display();
+	float getWidth();
+	float getHeight();
 private:
+	float h;
+	float w;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 };
