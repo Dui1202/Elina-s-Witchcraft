@@ -201,6 +201,73 @@ void Modal::setIsOpen(bool p_bool) {
 	isOpen = p_bool;
 }
 
+Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_hp, std::vector<Animation*>& p_animationUI)
+	: UI(p_pos, p_outerBar, p_animationUI), outerBar(p_outerBar), innerBar(p_innerBar), hp(p_hp) {
+
+	isHpBased = true;
+	Animation* newOuterBar = new Animation(*p_outerBar);
+	Animation* newInnerBar = new Animation(*p_innerBar);
+
+	outerBar = newOuterBar;
+	innerBar = newInnerBar;
+
+	outerBar->setPos(p_pos);
+	innerBar->setPos(outerBar->getPos() + innerOffset);
+
+	innerBarLength = innerBar->getCurrentFrameRect().w;
+	lengthEachPart = innerBarLength / hp;
+
+	p_animationUI.push_back(newOuterBar);
+	p_animationUI.push_back(newInnerBar);
+}
+
+Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_coolDown, std::vector<Animation*>& p_animationUI) 
+	: UI(p_pos, p_outerBar, p_animationUI), outerBar(p_outerBar), innerBar(p_innerBar), coolDown(p_coolDown) {
+
+	isHpBased = false;
+	Animation* newOuterBar = new Animation(*p_outerBar);
+	Animation* newInnerBar = new Animation(*p_innerBar);
+	
+	outerBar = newOuterBar;
+	innerBar = newInnerBar;
+
+	innerBar->setPos(outerBar->getPos() + innerOffset);
+
+	innerBarLength = innerBar->getCurrentFrameRect().w;
+	lengthEachPart = innerBarLength / hp;
+
+	p_animationUI.push_back(newOuterBar);
+	p_animationUI.push_back(newInnerBar);
+}
+
+Animation* Bar::getInnerAnimation() {
+	return innerBar;
+}
+
+Animation* Bar::getOuterAnimation() {
+	return outerBar;
+}
+
+void Bar::setInnerAnimation(Animation* p_animation) {
+	innerBar = p_animation;
+}
+
+void Bar::update(float p_minusHp) {
+	std::cout << "Bar updated!" << std::endl;
+	innerBarLength = innerBarLength - (lengthEachPart * p_minusHp);
+	int remainLength = static_cast<int>(innerBarLength);
+	innerBar->setFrameRectW(remainLength);
+}
+
+float Bar::getInnerBarLength() {
+	return innerBarLength;
+}
+
+void Bar::setInnerBarLength(float p_length) {
+	innerBarLength = p_length;
+}
+
+
 SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
 	: UI(p_pos, p_activeAnimation, p_animationUIs) {
 	Animation* newActiveAnimation = new Animation(*p_activeAnimation);

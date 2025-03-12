@@ -6,18 +6,27 @@
 Projectile::Projectile()
 	:GameObject(Vector2f(0, 0), nullptr), direction(Vector2f(0,0)), speed(0){}
 
-Projectile::Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, float p_speed, float p_str, Animation* p_animation)
-: GameObject(p_pos, p_animation), name(p_name), direction(p_shootDir), speed(p_speed), str(p_str){
+Projectile::Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, float p_speed, float p_str, Uint32 p_coolDown, Animation* p_animation)
+: GameObject(p_pos, p_animation), name(p_name), direction(p_shootDir), speed(p_speed), str(p_str), coolDown(p_coolDown) {
 }
 
 void Projectile::update(Vector2f startpos, Uint32 currentTime) {
 
-	SDL_Rect hb = { getPos().x + 25,getPos().y + 30, 64, 40 };
 
-	shoot(startpos);
-	animation->setPos(getPos());
+	if (name == "windStorm") {
+		shoot(startpos + Vector2f(0, -64));
+		animation->setPos(getPos() + Vector2f(0, -64));
+		SDL_Rect windStormHb = { getPos().x + 25, getPos().y, 64, 80 };
+		setCollider(Collider(windStormHb));
+	}
+	else {
+		shoot(startpos);
+		SDL_Rect hb = { getPos().x + 25,getPos().y + 30, 64, 40 };
+	    animation->setPos(getPos());
+		setCollider(Collider(hb));
+	}
 	animation->update(currentTime);
-	setCollider(Collider(hb));
+	
 }
 
 void Projectile::shoot(Vector2f startpos){
@@ -30,6 +39,10 @@ Vector2f Projectile::getDirection() {
 
 float Projectile::getSpeed() {
 	return speed;
+}
+
+void Projectile::setSpeed(float p_speed) {
+	speed = p_speed;
 }
 
 Collider Projectile::getCollider() {
@@ -55,3 +68,36 @@ std::string Projectile::getName() {
 void Projectile::setName(std::string p_name) {
 	name = p_name;
 }
+
+Uint32 Projectile::getCoolDown() {
+	return coolDown;
+}
+
+void Projectile::setCoolDown(Uint32 p_coolDown) {
+	coolDown = p_coolDown;
+}
+
+Uint32 Projectile::getLastShot() {
+	return lastShot;
+}
+
+void Projectile::setLastShot(Uint32 p_lastShot) {
+	lastShot = p_lastShot;
+}
+
+Uint32 Projectile::getCoolDownDamageTick() {
+	return coolDownDamageTick;
+}
+
+void Projectile::setCoolDownDamageTick(Uint32 p_coolDown) {
+	coolDownDamageTick = p_coolDown;
+}
+
+Uint32 Projectile::getLastTick() {
+	return lastTick;
+}
+
+void Projectile::setLastTick(Uint32 p_lastTick) {
+	lastTick = p_lastTick;
+}
+

@@ -18,21 +18,44 @@ void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::v
 	std::cout << "Shoot "<< currentProjectile->getName() <<"!" << std::endl;
 	
 	Animation* newProjectileAnimation = new Animation(*(currentProjectile->getAnimation()));
-	Projectile* newProjectile = new Projectile(currentProjectile->getName(), currentProjectile->getPos(), currentProjectile->getDirection(), currentProjectile->getSpeed(), currentProjectile->getStr(), newProjectileAnimation);
+	Projectile* newProjectile = new Projectile(currentProjectile->getName(), currentProjectile->getPos(), currentProjectile->getDirection(), currentProjectile->getSpeed(), currentProjectile->getStr(), currentProjectile->getCoolDown(), newProjectileAnimation);
 	newProjectile->setPos(getPos());
 
 	projectilesVector.push_back(newProjectile);
 	animationProjectiles.push_back(newProjectileAnimation);
 }
 
-Uint32 Player::getCoolDownFb() {
-	return coolDownFb;
+void Player::changeProjectile(SDL_Event& e) {
+	if (e.key.keysym.sym == SDLK_j) {
+		currentProjectile = projectilePrefabs[0];
+	}
+	else if (e.key.keysym.sym == SDLK_k) {
+		currentProjectile = projectilePrefabs[1];
+	}
+	else if (e.key.keysym.sym == SDLK_l) {
+		currentProjectile = projectilePrefabs[2];
+	}
 }
 
-Uint32 Player::getLastShotFb() {
-	return lastShotFb;
+Projectile* Player::getCurrentProjectile() {
+	return currentProjectile;
+}
+//Uint32 Player::getCoolDownFb() {
+//	return coolDownFb;
+//}
+//
+//Uint32 Player::getLastShotFb() {
+//	return lastShotFb;
+//}
+//
+//void Player::setLastShotFb(Uint32 p_lastShot) {
+//	lastShotFb = p_lastShot;
+//}
+
+int Player::getCoin() {
+	return coin;
 }
 
-void Player::setLastShotFb(Uint32 p_lastShot) {
-	lastShotFb = p_lastShot;
+void Player::setCoin(int p_coin) {
+	coin = p_coin;
 }

@@ -26,6 +26,7 @@ public:
 	void logic();
 	void input(SDL_Event &e, Vector2f& p_movement);
 	void clean();
+	bool runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime);
 	//Destroy out of bound Projectiles
 	void destroyOutOfBound();
 	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
@@ -33,6 +34,7 @@ public:
 
 	//Button functions
 	void settingsButtonFunction();
+	void shopButtonFunction();
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
@@ -54,12 +56,13 @@ private:
 	std::vector<Button*> buttonsInSettingModal;
 	std::vector<Button*> buttonsInMenu;
 	std::vector<Modal*> modals;
+	std::vector<Bar*> bars;
 
 	std::vector<Animation*> animationProjectiles;
 	std::vector<Animation*> animationGrass;
 	std::vector<Animation*> animationEnemies;
 	std::vector<Animation*> animationUIs;
-
+	std::vector<Button*> empty;
 	Player* player;
 	Uint32 currentTime;
 	float playerSpeed = 0;

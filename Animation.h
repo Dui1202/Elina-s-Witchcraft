@@ -16,6 +16,9 @@ public:
 	int getFrames();
 	int getCurrentFrame();
 	void setCurrentFrame(int p_frame);
+	void setFrameRect(int x, int y, int w, int h);
+	void setFrameRectW(int w);
+	void setFrameRectH(int h);
 	void move(Vector2f p_dir, float speed);
 private:
 	Vector2f pos;

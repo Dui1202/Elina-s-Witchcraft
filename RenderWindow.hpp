@@ -19,6 +19,7 @@ public:
 	void renderAnimation(Animation* p_animation);
 	void renderUI(Button* p_ui);
 	void renderUI(Modal* p_ui);
+	void renderUI(Bar* p_bar);
 	void renderText(Text* p_text);
 	void display();
 	float getWidth();

@@ -57,12 +57,23 @@ private:
 
 class Bar : public UI {
 public:
-
+	Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_hp, std::vector<Animation*>& p_animationUI);
+	Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_coolDown, std::vector<Animation*>& p_animationUI);
+	Animation* getInnerAnimation();
+	Animation* getOuterAnimation();
+	void setInnerAnimation(Animation* p_animation);
+	void update(float p_minusHp);
+	float getInnerBarLength();
+	void setInnerBarLength(float p_length);
 private:
 	Uint32 coolDown;
 	float hp;
 	Animation* innerBar;
-	Animation* outsideBar;
+	Animation* outerBar;
+	bool isHpBased;
+	Vector2f innerOffset = Vector2f(2, 2);
+	float innerBarLength;
+	float lengthEachPart;
 };
 
 class SkillHolder : public UI {

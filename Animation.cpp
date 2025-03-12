@@ -63,6 +63,30 @@ void Animation::setCurrentFrame(int p_frame) {
 	currentFrame = p_frame;
 }
 
+void Animation::setFrameRect(int x, int y, int w, int h) {
+	frameSize = { x, y, w, h };
+
+	for (int i = 1; i <= frames; i++) {
+		SDL_Rect frame = { 0 + (frameSize.w * (i - 1)) , 0, frameSize.w, frameSize.h };
+		frameSrcs.clear();
+		frameSrcs.push_back(frame);
+	}
+
+	currentFrameRect = frameSrcs[0];
+}
+
+void Animation::setFrameRectW(int p_w) {
+	frameSize.w = p_w;
+
+	for (int i = 1; i <= frames; i++) {
+		SDL_Rect frame = { 0 + (frameSize.w * (i - 1)) , 0, frameSize.w, frameSize.h };
+		frameSrcs.clear();
+		frameSrcs.push_back(frame);
+	}
+
+	currentFrameRect = frameSrcs[0];
+}
+
 void Animation::move(Vector2f p_dir, float p_speed) {
 	setPos(getPos() + p_dir * p_speed);
 }

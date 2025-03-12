@@ -14,6 +14,16 @@
 #include "Collision.h"
 #include "UI.h"
 
+void circularMotion(Enemy* &p_enemy, Vector2f p_center, float p_angleSpeed) {
+	float radius = 20;
+	float angle = p_enemy->getAngle();
+	Vector2f motion(p_center.x + radius * cos(angle), p_center.y + radius * sin(angle));
+
+	p_enemy->setPos(motion);
+
+	p_enemy->setAngle(angle + p_angleSpeed);
+}
+
 void emptyFunction() {
 	std::cout << "lmao" << std::endl;
 }
@@ -39,7 +49,10 @@ void Game::start() {
 		"./asset/projectiles/windstorm_sprite.png",
 		"./asset/UI/fireball_skillholder.png",
 		"./asset/UI/snowball_skillholder.png",
-		"./asset/UI/windstorm_skillholder.png"
+		"./asset/UI/windstorm_skillholder.png",
+		"./asset/UI/outer_bar.png",
+		"./asset/UI/inner_hp_bar.png",
+		"./asset/UI/inner_cooldown_bar.png"
 	};
 	resourceManager.loadTexture(allTexturePaths);
 
@@ -58,6 +71,9 @@ void Game::start() {
 	SDL_Texture* fireBallSkillHolderTexture = resourceManager.getTexture(allTexturePaths[11]);
 	SDL_Texture* snowBallSkillHolderTexture = resourceManager.getTexture(allTexturePaths[12]);
 	SDL_Texture* windStormSkillHolderTexture = resourceManager.getTexture(allTexturePaths[13]);
+	SDL_Texture* outerBarTexture = resourceManager.getTexture(allTexturePaths[14]);
+	SDL_Texture* innerHpBarTexture = resourceManager.getTexture(allTexturePaths[15]);
+	SDL_Texture* innerCoolDownBarTexture = resourceManager.getTexture(allTexturePaths[16]);
 
 	//Set some frames
 	SDL_Rect defaultFrame = { 0, 0 , 64, 64 };
@@ -67,24 +83,30 @@ void Game::start() {
 	SDL_Rect backgroundFrame = { 0, 0, 1280, 120 };
 	SDL_Rect skillHolderFrame = { 0, 0, 100, 100 };
 	SDL_Rect windStormFrame = { 0, 0, 64, 128 };
+	SDL_Rect outerBarFrame = { 0, 0, 128, 16 };
+	SDL_Rect innerBarFrame = { 0, 0, 124, 12 };
 
 	//Set some default positions
 	Vector2f settingBtnPosition(1100, 10);
+	Vector2f shopBtnPosition(50, 10);
 
 	//Set some in-game varibles
 	playerSpeed = 5;
 	float fireBallSpeed = 10;
 	float fireBallStr = 5;
+	Uint32 fireBallCoolDown = 500;
 
 	float snowBallSpeed = 10;
 	float snowBallStr = 2;
+	Uint32 snowBallCoolDown = 500;
 
 	float windStormSpeed = 6;
 	float windStormStr = 1;
+	Uint32 windStormCoolDown = 1000;
 
-	float slimeSpeed = 3;
+	float slimeSpeed = 2;
 	float slimeHp = 10;
-
+	int slimeCoinDrop = 5;
 	Collider slimeCollider(SDL_Rect({ 1,1, 100, 100 }));
 
 	//Set Animation
@@ -102,18 +124,23 @@ void Game::start() {
 	Animation* fireBallSkillHolderAnimation = new Animation(Vector2f(0, 0), fireBallSkillHolderTexture, 2, skillHolderFrame, 100);
 	Animation* snowBallSkillHolderAnimation = new Animation(Vector2f(0, 0), snowBallSkillHolderTexture, 2, skillHolderFrame, 100);
 	Animation* windStormSkillHolderAnimation = new Animation(Vector2f(0, 0), windStormSkillHolderTexture, 2, skillHolderFrame, 100);
+	Animation* outerBarAnimation = new Animation(Vector2f(0, 0), outerBarTexture, 1, outerBarFrame, 100);
+	Animation* innerHpBarAnimation = new Animation(Vector2f(0, 0), innerHpBarTexture, 1, innerBarFrame, 100);
+	Animation* innerCoolDownBarAnimation = new Animation(Vector2f(0, 0), innerCoolDownBarTexture, 1, innerBarFrame, 100);
 
 	//Set text
 	TTF_Font* normalFont = TTF_OpenFont("./asset/font/Roboto/font.ttf", 20);
 	TTF_Font* boldFont = TTF_OpenFont("./asset/font/Roboto/static/Roboto_Condensed-SemiBold.ttf", 32);
 	SDL_Color black = { 0, 0, 0, 255 };
 	SDL_Color white = { 255, 255, 255, 255 };
+
 	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normalFont);
 	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normalFont);
 	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normalFont);
 	Text* playText = new Text("Play", Vector2f(0, 0), black, window.getRenderer(), normalFont);
 	Text* quitText = new Text("Quit", Vector2f(0, 0), black, window.getRenderer(), normalFont);
 	Text* settingsModalText = new Text("Settings", Vector2f(0, 0), white, window.getRenderer(), boldFont);
+	Text* shopText = new Text("Shop", Vector2f(0, 0), black, window.getRenderer(), normalFont);
 
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
@@ -121,29 +148,38 @@ void Game::start() {
 	Button* resumeButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, resumeText, animationUIs, emptyFunction);
 	Button* playButton = new Button(Vector2f(50, 50), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, emptyFunction);
 	Button* quitButton = new Button(Vector2f(100, 100), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, emptyFunction);
+	Button* shopButton = new Button(shopBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, shopText, animationUIs, std::bind(&Game::shopButtonFunction, this));
 
 	//Set of buttons
 	buttonsInSettingModal.push_back(menuButton);
 	buttonsInSettingModal.push_back(resumeButton);
 
+	//Set Bar
+	float hpp = 100;
+	Bar* testBar = new Bar(Vector2f(100, 100), outerBarAnimation, innerHpBarAnimation, hpp, animationUIs);
 	//buttonsInMenu.push_back(playButton);
 	//buttonsInMenu.push_back(quitButton);
 
 	//Set modal
 	Modal* settingModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInSettingModal, settingsModalText, animationUIs);
+	Modal* shopModal = new Modal(Vector2f(0, 0), modalAnimation, empty, settingsModalText, animationUIs);
+
+	//Set Skill Holders
+	//SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(0, 0), )
 
 	//Set projectiles
-	Projectile* fireball = new Projectile("fireBall", Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallAnimation);
-	Projectile* snowBall = new Projectile("snowBall", Vector2f(0, 0), Vector2f(1, 0), snowBallSpeed, snowBallStr, snowBallAnimation);
-	Projectile* windStorm = new Projectile("windStorm", Vector2f(0, 0), Vector2f(1, 0), windStormSpeed, windStormStr, windStormAnimation);
+	Projectile* fireball = new Projectile("fireBall", Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallCoolDown, fireBallAnimation);
+	Projectile* snowBall = new Projectile("snowBall", Vector2f(0, 0), Vector2f(1, 0), snowBallSpeed, snowBallStr, snowBallCoolDown, snowBallAnimation);
+	Projectile* windStorm = new Projectile("windStorm", Vector2f(0, 0), Vector2f(1, 0), windStormSpeed, windStormStr, windStormCoolDown, windStormAnimation);
 
 	
 	
 	//Set enemies
-	Enemy* slime = new Enemy(Vector2f(0, 0), slimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp);
+	Enemy* slime = new Enemy(Vector2f(0, 0), slimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp, slimeCoinDrop, testBar);
 
 	//Set positions
 	settingModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(settingModal->getWidth() / 2, settingModal->getHeight() / 2));
+	shopModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(shopModal->getWidth() / 2, shopModal->getHeight() / 2));
 
 	//Push all animations for easier deconstruction
 	animationPrefabs.push_back(playerIdleAnimation);
@@ -160,6 +196,9 @@ void Game::start() {
 	animationPrefabs.push_back(fireBallSkillHolderAnimation);
 	animationPrefabs.push_back(snowBallSkillHolderAnimation);
 	animationPrefabs.push_back(windStormSkillHolderAnimation);
+	animationPrefabs.push_back(outerBarAnimation);
+	animationPrefabs.push_back(innerHpBarAnimation);
+	animationPrefabs.push_back(innerCoolDownBarAnimation);
 
 	projectilePrefabs.push_back(fireball);
 	projectilePrefabs.push_back(snowBall);
@@ -169,6 +208,8 @@ void Game::start() {
 	player = new Player(Vector2f(0, 362), nullptr, projectilePrefabs);
 	playerIdleAnimation->setPos(player->getPos());
 	player->setAnimation(playerIdleAnimation);
+	std::string playerCoin = "Coin: " + player->getCoin();
+	Text* playerCoinText = new Text(playerCoin, Vector2f(0, 0), black, window.getRenderer(), normalFont);
 
 	enemyPrefabs.push_back(slime);
 
@@ -178,14 +219,20 @@ void Game::start() {
 	texts.push_back(playText);
 	texts.push_back(quitText);
 	texts.push_back(settingsModalText);
+	texts.push_back(shopText);
+	texts.push_back(playerCoinText);
 
 	buttons.push_back(settingsButton);
 	buttons.push_back(menuButton);
 	buttons.push_back(resumeButton);
 	//buttons.push_back(playButton);
 	//buttons.push_back(quitButton);
+	buttons.push_back(shopButton);
 
 	modals.push_back(settingModal);
+	modals.push_back(shopModal);
+
+	bars.push_back(testBar);
 }
 
 void Game::debug() {
@@ -205,19 +252,64 @@ void Game::logic() {
 		bool isDestroy = false;
 		for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ++eneIt) {
 			if ((*pjIt)->getCollider().checkCollide((*eneIt)->getCollider())) {
-				std::cout << "Collide with enemy!" << std::endl;
-				(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
-				std::cout << (*pjIt)->getStr() << std::endl;
-				destroyProjectile(*pjIt, pjIt);
-				std::cout << "1!" << std::endl;
-				std::cout << ((*eneIt)->getHp()) << std::endl;
-				std::cout << "2!" << std::endl;
-				if ((*eneIt)->getHp() <= 0) {
-					destroyEnemy(*eneIt, eneIt);
+				if ((*pjIt)->getName() == "fireBall") {
+					std::cout << "Collide with enemy!" << std::endl;
+
+					if (runCoolDown((*pjIt)->getCoolDownDamageTick(), (*pjIt)->getLastTick())) {
+						std::cout << "1!" << std::endl;
+						(*pjIt)->setLastTick(currentTime);
+						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+						//std::cout << (*pjIt)->getStr() << std::endl;
+					}
+					destroyProjectile(*pjIt, pjIt);
+					//std::cout << ((*eneIt)->getHp()) << std::endl;
+					//std::cout << "2!" << std::endl;
+					if ((*eneIt)->getHp() <= 0) {
+						destroyEnemy(*eneIt, eneIt);
+					}
+					//std::cout << "3!" << std::endl;
+					isDestroy = true;
+					break;
 				}
-				std::cout << "3!" << std::endl;
-				isDestroy = true;
-				break;
+				else if ((*pjIt)->getName() == "snowBall") {
+					std::cout << "Collide with enemy!" << std::endl;
+					
+					if (runCoolDown((*pjIt)->getCoolDownDamageTick(), (*pjIt)->getLastTick())) {
+						(*pjIt)->setLastTick(currentTime);
+						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+						(*eneIt)->setSpeed((*eneIt)->getSpeed() / 2);
+						std::cout << (*pjIt)->getStr() << std::endl;
+					}
+
+					destroyProjectile(*pjIt, pjIt);
+					//std::cout << "1!" << std::endl;
+					//std::cout << ((*eneIt)->getHp()) << std::endl;
+					//std::cout << "2!" << std::endl;
+					if ((*eneIt)->getHp() <= 0) {
+						destroyEnemy(*eneIt, eneIt);
+					}
+					//std::cout << "3!" << std::endl;
+					isDestroy = true;
+					break;
+				}
+				else if ((*pjIt)->getName() == "windStorm") {
+					//std::cout << "Collide with enemy!" << std::endl;
+					if (runCoolDown((*eneIt)->getCoolDownDamageTick(), (*eneIt)->getLastTick())) {
+						//std::cout << "1!" << std::endl;
+						(*eneIt)->setLastTick(currentTime);
+						//std::cout << "2!" << std::endl;
+						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+					}
+					circularMotion((*eneIt), (*pjIt)->getPos(), 0.5);
+					//(*eneIt)->setPos((*pjIt)->getPos());
+					std::cout << (*eneIt)->getHp() << std::endl;
+					if ((*eneIt)->getHp() <= 0) {
+						destroyEnemy(*eneIt, eneIt);
+					}
+					//std::cout << "3!" << std::endl;
+
+				}
+				
 			}
 		}
 		if (!isDestroy)
@@ -259,19 +351,21 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 
 	if (inputManager.keyStates[SDLK_w]) p_movement.y -= 1;
 	if (inputManager.keyStates[SDLK_s]) p_movement.y += 1;
-	if ((currentTime - player->getLastShotFb()) >= (player->getCoolDownFb() + timePause) ) {
+	if (runCoolDown(player->getCurrentProjectile()->getCoolDown() + timePause, player->getCurrentProjectile()->getLastShot())) {
 		timePause = 0;
 		if (inputManager.keyStates[SDLK_SPACE] && (!isGamePause)) {
 			player->shootProjectile(projectiles, animationProjectiles);
-			player->setLastShotFb(currentTime);
+			player->getCurrentProjectile()->setLastShot(currentTime);
 		};
 	}
+	player->changeProjectile(e);
 
 	for (auto& btn : buttons) {
 		btn->handleInput(e);
 	}
 
 	p_movement.normalize();
+
 	//p_movement.print();
 }
 
@@ -318,9 +412,10 @@ void Game::update() {
 		}
 
 		if (!isGamePause) {
-			if (currentTime - spawnManager.getLastTime() >= spawnManager.getCooldown()) {
+			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
 				spawnManager.spawnEnemy(enemies, animationEnemies, slime);
 				spawnManager.setLastTime(currentTime);
+				bars[0]->update(5);
 			}
 		
 			logic();
@@ -370,6 +465,10 @@ void Game::update() {
 			//Render Enemies
 		for (auto& sl : enemies) {
 			window.renderAnimation64(sl->getAnimation());
+		}
+
+		for (auto& bar : bars) {
+			window.renderUI(bar);
 		}
 
 
@@ -488,20 +587,40 @@ void Game::clean() {
 
 void Game::destroyOutOfBound() {
 	for (auto prjIt = projectiles.begin(); prjIt != projectiles.end();) {
-		if ((*prjIt)->getPos().x >= 1280 || (*prjIt)->getPos().y >= 720) {
-			auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
-			if (animIt != animationProjectiles.end()) {
-				delete* animIt;
-				animationProjectiles.erase(animIt);
+		if ((*prjIt)->getName() != "windStorm") {
+			if (((*prjIt)->getPos().x >= 1280 || (*prjIt)->getPos().y >= 720)) {
+				auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
+				if (animIt != animationProjectiles.end()) {
+					delete* animIt;
+					animationProjectiles.erase(animIt);
 
-			}	
-			delete *prjIt;
-			prjIt = projectiles.erase(prjIt);
-			std::cout << "Projectile destroyed!"<<std::endl;
+				}
+				delete* prjIt;
+				prjIt = projectiles.erase(prjIt);
+				std::cout << "Projectile destroyed!" << std::endl;
+			}
+			else {
+				++prjIt;
+			}
 		}
 		else {
-			++prjIt;
+			if (((*prjIt)->getPos().x >= 1200 || (*prjIt)->getPos().y >= 720)) {
+				auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
+				if (animIt != animationProjectiles.end()) {
+					delete* animIt;
+					animationProjectiles.erase(animIt);
+
+				}
+				delete* prjIt;
+				prjIt = projectiles.erase(prjIt);
+				std::cout << "Projectile destroyed!" << std::endl;
+			}
+			else {
+				++prjIt;
+			}
 		}
+		
+		
 	}
 
 	for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ) {
@@ -537,7 +656,8 @@ void Game::destroyProjectile(Projectile* p_projectile,std::vector<Projectile*>::
 void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) {
 	auto eneIt = std::find(enemies.begin(), enemies.end(), p_enemy);
 	auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), p_enemy->getAnimation());
-
+	player->setCoin(player->getCoin() + (*eneIt)->getCoinDrop());
+	std::cout << player->getCoin() << std::endl;
 	if (eneIt == enemies.end()) {
 		std::cout << "Didn't find an enemy to destroy!" << std::endl;
 		return;
@@ -559,6 +679,17 @@ void Game::settingsButtonFunction() {
 	pause();
 }
 
+void Game::shopButtonFunction() {
+	std::cout << "Pressed settingButton!" << std::endl;
+	if (modals[1]->getIsOpen()) {
+		modals[1]->close();
+	}
+	else {
+		modals[1]->open();
+	}
+	pause();
+}
+
 void Game::pause() {
 	if (isGamePause) {
 		isGamePause = false;
@@ -570,4 +701,9 @@ void Game::pause() {
 		isGamePause = true;
 		startPause = SDL_GetTicks();
 	}
+}
+
+bool Game::runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime) {
+	bool offCoolDown = ((currentTime - p_lastTime) >= p_coolDown);
+	return offCoolDown;
 }

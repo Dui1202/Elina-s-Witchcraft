@@ -94,6 +94,11 @@ void RenderWindow::renderUI(Modal* p_ui) {
 	renderAnimation(p_ui->getAnimation());
 }
 
+void RenderWindow::renderUI(Bar* p_bar) {
+	renderAnimation(p_bar->getOuterAnimation());
+	renderAnimation(p_bar->getInnerAnimation());
+}
+
 void RenderWindow::renderText(Text* p_text) {
 	SDL_Rect dst;
 	dst.x = p_text->getPos().x;
