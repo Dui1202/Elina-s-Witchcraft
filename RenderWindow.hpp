@@ -14,8 +14,6 @@ public:
 	SDL_Texture* loadTexture(const char* p_path);
 	void cleanUp();
 	void clear();
-	void render(GameObject &p_entity);
-	void renderAnimation64(Animation* p_animate);
 	void renderAnimation(Animation* p_animation);
 	void renderUI(Button* p_ui);
 	void renderUI(Modal* p_ui);

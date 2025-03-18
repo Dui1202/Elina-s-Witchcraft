@@ -10,10 +10,17 @@ Text::Text(std::string p_text, Vector2f p_pos, SDL_Color p_color, SDL_Renderer* 
 	: text(p_text), pos(p_pos), fontColor(p_color), renderer(p_renderer), font (p_font) {
 	SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), fontColor);
 	textTexture = SDL_CreateTextureFromSurface(p_renderer, textSurface);
-	textSurface = NULL;
 	SDL_FreeSurface(textSurface);
+	textSurface = NULL;
 
 	TTF_SizeText(font, text.c_str(), &w, &h);
+}
+
+Text::~Text() {
+	if (textTexture) {
+		SDL_DestroyTexture(textTexture);
+		textTexture = NULL;
+	}
 }
 
 Vector2f Text::getPos() {

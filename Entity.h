@@ -7,16 +7,15 @@
 class Entity {
 public:
 	Entity(Vector2f p_vector, Animation* p_animation);
+	//virtual ~Entity();
 	//Get the Entity position
-	Vector2f& getPos();
-	void setPos(const Vector2f& p_pos);
+	virtual Vector2f& getPos();
+	virtual void setPos(const Vector2f& p_pos);
 	Animation* getAnimation();
 	void setAnimation(Animation* p_animation);
-	//SDL_Rect getCurrentFrame();
-	//SDL_Texture* getTex();
+
 protected:
 	Vector2f pos;
-	//SDL_Rect currentFrame;
-	//SDL_Texture* tex;
 	Animation* animation;
+	float renderScale;
 };

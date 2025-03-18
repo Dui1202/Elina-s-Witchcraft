@@ -8,6 +8,7 @@
 class GameObject : public Entity {
 public:
 	GameObject(Vector2f p_pos, Animation* p_animation);
+	//~GameObject();
 	void move(Vector2f p_direction);
 	//SDL_Rect currentFrame;
 	//SDL_Texture* tex;

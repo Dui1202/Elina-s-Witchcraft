@@ -5,7 +5,15 @@
 
 
 Entity::Entity(Vector2f p_vector,Animation* p_animation)
-	:pos(p_vector),animation(p_animation){}
+	:pos(p_vector),animation(p_animation) {
+}
+
+//Entity::~Entity() {
+//	if (animation) {
+//		delete animation;
+//		animation = nullptr;
+//	}
+//}
 
 Vector2f& Entity::getPos() {
 	return pos;
@@ -23,10 +31,3 @@ Animation* Entity::getAnimation() {
 void Entity::setAnimation(Animation* p_animation) {
 	animation = p_animation;
 }
-//SDL_Rect Entity::getCurrentFrame() {
-//	return currentFrame;
-//}
-//
-//SDL_Texture* Entity::getTex() {
-//	return tex;
-//}

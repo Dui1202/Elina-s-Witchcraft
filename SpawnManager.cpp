@@ -27,15 +27,14 @@ Vector2f SpawnManager::randomPos() {
 
 void SpawnManager::spawnEnemy(std::vector<Enemy*>& enemies, std::vector<Animation*>& enemyAnimations, Enemy* p_enemy) {
     
-    Enemy* newEnemy = new Enemy(*p_enemy);
-    Animation* newEnemyAnimation = new Animation(*(newEnemy->getAnimation()));
-    newEnemy->setAnimation(newEnemyAnimation);
+    Enemy* newEnemy = new Enemy(p_enemy);
+
     newEnemy->setPos(randomPos());
     SDL_Rect hb = { newEnemy->getPos().x + 10, newEnemy->getPos().y + 10, 64, 64 };
     newEnemy->setCollider(hb);
-    
-    enemyAnimations.push_back(newEnemyAnimation);
+
     enemies.push_back(newEnemy);
+
 }
 
 void SpawnManager::setLastTime(Uint32 p_lastTime) {

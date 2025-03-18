@@ -7,15 +7,20 @@
 #include "UI.h"
 
 UI::UI(Vector2f p_pos, Animation* p_animation, std::vector<Animation*> &p_animationUIs)
-	:pos(p_pos){
+	:pos(p_pos), animationUIs(p_animationUIs){
 	Animation* newAnimation = new Animation(*p_animation);
 	animation = newAnimation;
 
-	h = getAnimation()->getCurrentFrameRect().h;
-	w = getAnimation()->getCurrentFrameRect().w;
+	h = getAnimation()->getHeight();
+	w = getAnimation()->getWidth();
+
 
 	p_animationUIs.push_back(newAnimation);
 }
+
+//UI::~UI() {
+//	delete animation;
+//}
 
 Vector2f UI::getPos() {
 	return pos;
@@ -40,6 +45,14 @@ float UI::getWidth() {
 
 float UI::getHeight() {
 	return h;
+}
+
+float UI::getScale() {
+	return renderScale;
+}
+
+std::vector<Animation*>& UI::getAnimationUIs() {
+	return animationUIs;
 }
 
 Button::Button(Vector2f p_pos, Animation* p_normalAnimation, Animation* p_hoverAnimation, Animation* p_activeAnimation, Text* p_text, std::vector<Animation*>& p_animationUIs, std::function<void()> p_function)
@@ -134,16 +147,18 @@ bool Button::isOn() {
 }
 
 void Button::handleInput(const SDL_Event &p_e) {
-	if (getVisible()) {
-		if (isOnClick(p_e)) {
-			onClick();
-			setAnimation(activeAnimation);
-		}
-		else if (isOn()) {
-			setAnimation(hoverAnimation);
-		}
-		else {
-			setAnimation(normalAnimation);
+	if (isEnable) {
+		if (getVisible()) {
+			if (isOnClick(p_e)) {
+				onClick();
+				setAnimation(activeAnimation);
+			}
+			else if (isOn()) {
+				setAnimation(hoverAnimation);
+			}
+			else {
+				setAnimation(normalAnimation);
+			}
 		}
 	}
 }
@@ -160,11 +175,26 @@ bool Button::getVisible() {
 	return isVisible;
 }
 
+bool Button::getEnable() {
+	return isEnable;
+}
+
+void Button::setEnable(bool p_bool) {
+	isEnable = p_bool;
+}
+
 Modal::Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*> &p_buttons, Text* p_heading, std::vector<Animation*> &p_animationUIs) 
 	:UI(p_pos, p_animation, p_animationUIs), buttons(p_buttons), text(p_heading)
 {
 	close();
 }
+
+//Modal::~Modal() {
+//	if (text) {
+//		delete text;
+//		text = nullptr;
+//	}
+//}
 	
 void Modal::setPos(Vector2f p_pos) {
 	int i = 0;
@@ -201,13 +231,27 @@ void Modal::setIsOpen(bool p_bool) {
 	isOpen = p_bool;
 }
 
+//Bar
 Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_hp, std::vector<Animation*>& p_animationUI)
 	: UI(p_pos, p_outerBar, p_animationUI), outerBar(p_outerBar), innerBar(p_innerBar), hp(p_hp) {
-
+	coolDown = 0;
 	isHpBased = true;
+
+	outerBar->setPos(p_pos);
+	innerBar->setPos(outerBar->getPos() + innerOffset);
+
+	innerBarLength = innerBar->getCurrentFrameRect().w;
+	lengthEachPart = innerBarLength / hp;
+
+}
+
+Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_coolDown, std::vector<Animation*>& p_animationUI) 
+	: UI(p_pos, p_outerBar, p_animationUI), outerBar(p_outerBar), innerBar(p_innerBar), coolDown(p_coolDown) {
+	hp = 0;
+	isHpBased = false;
 	Animation* newOuterBar = new Animation(*p_outerBar);
 	Animation* newInnerBar = new Animation(*p_innerBar);
-
+	
 	outerBar = newOuterBar;
 	innerBar = newInnerBar;
 
@@ -221,24 +265,44 @@ Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_h
 	p_animationUI.push_back(newInnerBar);
 }
 
-Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_coolDown, std::vector<Animation*>& p_animationUI) 
-	: UI(p_pos, p_outerBar, p_animationUI), outerBar(p_outerBar), innerBar(p_innerBar), coolDown(p_coolDown) {
+Bar::Bar(const Bar* other)
+	: UI(other->pos, other->outerBar, (other->animationUIs)), hp(other->hp), coolDown(other->coolDown) {
+	isHpBased = true;
 
-	isHpBased = false;
-	Animation* newOuterBar = new Animation(*p_outerBar);
-	Animation* newInnerBar = new Animation(*p_innerBar);
-	
-	outerBar = newOuterBar;
-	innerBar = newInnerBar;
+	Animation* newInnerAnimation = new Animation(*(other->innerBar));
+	Animation* newOuterAnimation = new Animation(*(other->outerBar));
 
+	innerBar = newInnerAnimation;
+	outerBar = newOuterAnimation;
+
+	outerBar->setPos(pos);
 	innerBar->setPos(outerBar->getPos() + innerOffset);
 
-	innerBarLength = innerBar->getCurrentFrameRect().w;
-	lengthEachPart = innerBarLength / hp;
 
-	p_animationUI.push_back(newOuterBar);
-	p_animationUI.push_back(newInnerBar);
+	innerBarLength = innerBar->getCurrentFrameRect().w;
+	if (coolDown == 0) {
+		lengthEachPart = innerBarLength / hp;
+	}
+	else if (hp == 0) {
+		lengthEachPart = innerBarLength / coolDown;
+	}
+	
+
+	animationUIs.push_back(newInnerAnimation);
+	animationUIs.push_back(newOuterAnimation);
 }
+
+//Bar::~Bar() {
+//	if (innerBar) {
+//		delete innerBar;
+//		innerBar = nullptr;
+//	}
+//
+//	if (outerBar) {
+//		delete outerBar;
+//		outerBar = nullptr;
+//	}
+//}
 
 Animation* Bar::getInnerAnimation() {
 	return innerBar;
@@ -248,8 +312,19 @@ Animation* Bar::getOuterAnimation() {
 	return outerBar;
 }
 
+void Bar::setPos(Vector2f p_pos) {
+	animation->setPos(p_pos);
+	outerBar->setPos(p_pos);
+	innerBar->setPos(p_pos + innerOffset);
+	pos = p_pos;
+}
+
 void Bar::setInnerAnimation(Animation* p_animation) {
 	innerBar = p_animation;
+}
+
+void Bar::setOuterAnimation(Animation* p_animation) {
+	outerBar = p_animation;
 }
 
 void Bar::update(float p_minusHp) {
@@ -267,7 +342,7 @@ void Bar::setInnerBarLength(float p_length) {
 	innerBarLength = p_length;
 }
 
-
+//Skill Holder
 SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
 	: UI(p_pos, p_activeAnimation, p_animationUIs) {
 	Animation* newActiveAnimation = new Animation(*p_activeAnimation);
@@ -282,3 +357,4 @@ SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimatio
 	p_animationUIs.push_back(newOnCoolDownAnimation);
 	p_bars.push_back(newBar);
 }
+

@@ -39,36 +39,6 @@ void RenderWindow::cleanUp() {
 void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
-//void RenderWindow::render(GameObject &p_entity) {
-//	SDL_Rect src;
-//	src.x = p_entity.getCurrentFrame().x;
-//	src.y = p_entity.getCurrentFrame().y;
-//	src.w = p_entity.getCurrentFrame().w;
-//	src.h = p_entity.getCurrentFrame().h;
-//
-//	SDL_Rect dst;
-//	dst.x = p_entity.getPos().x;
-//	dst.y = p_entity.getPos().y;
-//	dst.w = p_entity.getCurrentFrame().w*2;
-//	dst.h = p_entity.getCurrentFrame().h*2;
-//	SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
-//}
-
-void RenderWindow::renderAnimation64(Animation* p_animation) {
-	SDL_Rect src;
-	src.x = p_animation->getCurrentFrameRect().x;
-	src.y = p_animation->getCurrentFrameRect().y;
-	src.w = p_animation->getCurrentFrameRect().w;
-	src.h = p_animation->getCurrentFrameRect().h;
-
-	SDL_Rect dst;
-	dst.x = p_animation->getPos().x;
-	dst.y = p_animation->getPos().y;
-	dst.w = p_animation->getCurrentFrameRect().w * 1.5;
-	dst.h = p_animation->getCurrentFrameRect().h * 1.5;
-
-	SDL_RenderCopy(renderer, p_animation->getTexture(), &src, &dst);
-}
 
 void RenderWindow::renderAnimation(Animation* p_animation) {
 	SDL_Rect src;
@@ -80,11 +50,12 @@ void RenderWindow::renderAnimation(Animation* p_animation) {
 	SDL_Rect dst;
 	dst.x = p_animation->getPos().x;
 	dst.y = p_animation->getPos().y;
-	dst.w = p_animation->getCurrentFrameRect().w ;
-	dst.h = p_animation->getCurrentFrameRect().h ;
+	dst.w = p_animation->getCurrentFrameRect().w * p_animation->getRenderScale();
+	dst.h = p_animation->getCurrentFrameRect().h * p_animation->getRenderScale();
 
 	SDL_RenderCopy(renderer, p_animation->getTexture(), &src, &dst);
 }
+
 void RenderWindow::renderUI(Button* p_ui) {
 	renderAnimation(p_ui->getAnimation());
 	renderText(p_ui->getText());
@@ -98,6 +69,7 @@ void RenderWindow::renderUI(Bar* p_bar) {
 	renderAnimation(p_bar->getOuterAnimation());
 	renderAnimation(p_bar->getInnerAnimation());
 }
+
 
 void RenderWindow::renderText(Text* p_text) {
 	SDL_Rect dst;

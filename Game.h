@@ -20,7 +20,7 @@ public:
 	Game();
 	void start();
 	void update();
-	void pause();
+	void pause(int button);
 	void debug();
 	void graphic();
 	void logic();
@@ -46,6 +46,7 @@ private:
 	std::vector<Projectile*> projectilePrefabs;
 	std::vector<Animation*> animationPrefabs;
 	std::vector<Enemy*> enemyPrefabs;
+	std::vector<Bar*> barPrefabs;
 
 	//In-game
 	std::vector<Projectile*> projectiles;
@@ -63,6 +64,7 @@ private:
 	std::vector<Animation*> animationEnemies;
 	std::vector<Animation*> animationUIs;
 	std::vector<Button*> empty;
+
 	Player* player;
 	Uint32 currentTime;
 	float playerSpeed = 0;
