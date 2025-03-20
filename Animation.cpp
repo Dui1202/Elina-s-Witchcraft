@@ -7,9 +7,8 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 	: pos(p_pos), animateSprite(p_sprite), frames(p_frames), frameSize(p_frameSize), timePerFrame(p_timePerFrame), renderScale(p_renderScale){
 	
 	
-
 	for (int i = 1; i <= frames; i++) {
-		SDL_Rect frame = { 0 + (frameSize.w * (i - 1)) , 0, frameSize.w, frameSize.h};
+		SDL_Rect frame = { frameSize.x+ (frameSize.w * (i - 1)) , 0, frameSize.w, frameSize.h};
 		frameSrcs.push_back(frame);
 	}
 

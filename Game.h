@@ -24,6 +24,7 @@ public:
 	void debug();
 	void graphic();
 	void logic();
+	void UILogic();
 	void input(SDL_Event &e, Vector2f& p_movement);
 	void clean();
 	bool runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime);
@@ -32,6 +33,7 @@ public:
 	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
 	void destroyProjectile(Projectile* p_projectile, std::vector<Projectile*>::iterator& p_prjIt);
 
+	void updateCoin();
 	//Button functions
 	void settingsButtonFunction();
 	void shopButtonFunction();
@@ -58,6 +60,7 @@ private:
 	std::vector<Button*> buttonsInMenu;
 	std::vector<Modal*> modals;
 	std::vector<Bar*> bars;
+	std::vector<SkillHolder*> skillHolders;
 
 	std::vector<Animation*> animationProjectiles;
 	std::vector<Animation*> animationGrass;

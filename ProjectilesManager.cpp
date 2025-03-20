@@ -101,3 +101,9 @@ void Projectile::setLastTick(Uint32 p_lastTick) {
 	lastTick = p_lastTick;
 }
 
+bool Projectile::isOnCoolDown(Uint32 p_currentTime) {
+	Uint32 timer = p_currentTime - lastShot;
+	bool offCoolDown = (timer < coolDown);
+	return offCoolDown;
+}
+

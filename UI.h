@@ -76,8 +76,13 @@ public:
 	void setInnerAnimation(Animation* p_animation);
 	void setOuterAnimation(Animation* p_animation);
 	void update(float p_minusHp);
+	void update(Uint32 p_time);
+	void run(Uint32 &currenTime);
+	void reset();
+	void deplete();
 	float getInnerBarLength();
 	void setInnerBarLength(float p_length);
+	void setLastTimeUpdate(Uint32 p_lastTime);
 private:
 	Uint32 coolDown;
 	float hp;
@@ -87,11 +92,16 @@ private:
 	Vector2f innerOffset = Vector2f(1, 1);
 	float innerBarLength;
 	float lengthEachPart;
+	float originalLength;
+	Uint32 lastTimeUpdate = 0;
 };
 
 class SkillHolder : public UI {
 public: 
 	SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*>& p_animationUIs, std::vector<Bar*>& p_bars);
+	Bar* getBar();
+	void switchOnCoolDownAnimation();
+	void switchActiveAnimation();
 private:
 	Bar* coolDownBar;
 	Animation* activeAnimation;

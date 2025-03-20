@@ -18,6 +18,7 @@ public:
 	void renderUI(Button* p_ui);
 	void renderUI(Modal* p_ui);
 	void renderUI(Bar* p_bar);
+	void renderUI(SkillHolder* p_skillHolder);
 	void renderText(Text* p_text);
 	void display();
 	float getWidth();

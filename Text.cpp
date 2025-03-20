@@ -39,6 +39,18 @@ SDL_Texture* Text::getTextTexture() {
 
 void Text::setText(std::string p_text) {
 	text = p_text;
+	std::cout << text << std::endl;
+	SDL_Surface* textSurface = TTF_RenderText_Blended(font, p_text.c_str(), fontColor);
+	if (textTexture) {
+		SDL_DestroyTexture(textTexture);
+		textTexture = NULL;
+	}
+
+	textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	SDL_FreeSurface(textSurface);
+	textSurface = NULL;
+
+	TTF_SizeText(font, text.c_str(), &w, &h);
 }
 
 

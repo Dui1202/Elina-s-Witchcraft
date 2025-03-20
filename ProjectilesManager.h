@@ -28,7 +28,8 @@ public:
 	void setCoolDownDamageTick(Uint32 p_coolDown);
 	Uint32 getLastTick();
 	void setLastTick(Uint32 p_lastTick);
-private:
+	bool isOnCoolDown(Uint32 p_currentTime);
+private:  
 	Vector2f direction;
 	float speed;
 	float str;

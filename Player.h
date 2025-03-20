@@ -15,9 +15,9 @@ public:
 	Projectile* getCurrentProjectile();
 	int getCoin();
 	void setCoin(int p_coin);
-	/*Uint32 getCoolDownFb();
-	Uint32 getLastShotFb();
-	void setLastShotFb(Uint32 p_lastShot);*/
+	Projectile* getFireBallPrefab();
+	Projectile* getSnowBallPrefab();
+	Projectile* getWindStormPrefab();
 private:
 	std::vector<Projectile*> projectilePrefabs;
 	Uint32 lastShotFb = 0;

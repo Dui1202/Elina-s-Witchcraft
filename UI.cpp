@@ -10,6 +10,7 @@ UI::UI(Vector2f p_pos, Animation* p_animation, std::vector<Animation*> &p_animat
 	:pos(p_pos), animationUIs(p_animationUIs){
 	Animation* newAnimation = new Animation(*p_animation);
 	animation = newAnimation;
+	animation->setPos(p_pos);
 
 	h = getAnimation()->getHeight();
 	w = getAnimation()->getWidth();
@@ -241,6 +242,8 @@ Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_h
 	innerBar->setPos(outerBar->getPos() + innerOffset);
 
 	innerBarLength = innerBar->getCurrentFrameRect().w;
+	originalLength = innerBarLength;
+
 	lengthEachPart = innerBarLength / hp;
 
 }
@@ -259,7 +262,9 @@ Bar::Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_
 	innerBar->setPos(outerBar->getPos() + innerOffset);
 
 	innerBarLength = innerBar->getCurrentFrameRect().w;
-	lengthEachPart = innerBarLength / hp;
+	originalLength = innerBarLength;
+
+	lengthEachPart = innerBarLength / coolDown;
 
 	p_animationUI.push_back(newOuterBar);
 	p_animationUI.push_back(newInnerBar);
@@ -280,6 +285,8 @@ Bar::Bar(const Bar* other)
 
 
 	innerBarLength = innerBar->getCurrentFrameRect().w;
+	originalLength = innerBar->getCurrentFrameRect().w;
+
 	if (coolDown == 0) {
 		lengthEachPart = innerBarLength / hp;
 	}
@@ -328,9 +335,41 @@ void Bar::setOuterAnimation(Animation* p_animation) {
 }
 
 void Bar::update(float p_minusHp) {
-	std::cout << "Bar updated!" << std::endl;
+	//std::cout << "Bar updated!" << std::endl;
 	innerBarLength = innerBarLength - (lengthEachPart * p_minusHp);
 	int remainLength = static_cast<int>(innerBarLength);
+	innerBar->setFrameRectW(remainLength);
+	std::cout << remainLength << std::endl;
+}
+
+void Bar::update(Uint32 p_time) {
+	//std::cout << "Bar updated!" << std::endl;
+	innerBarLength = originalLength - (lengthEachPart * p_time);
+	int remainLength = static_cast<int>(innerBarLength);
+	innerBar->setFrameRectW(remainLength);
+}
+
+void Bar::run(Uint32 &currentTime) {
+	if (currentTime - lastTimeUpdate >= 10) {
+		//std::cout << "Bar updated!" << std::endl;
+		innerBarLength = innerBarLength - (lengthEachPart * 10);
+		int remainLength = static_cast<int>(innerBarLength);
+		innerBar->setFrameRectW(remainLength);
+		lastTimeUpdate = currentTime;
+	}
+}
+
+void Bar::reset() {
+	std::cout << "Bar reset!" << std::endl;
+	int remainLength = static_cast<int>(originalLength);
+	innerBarLength = originalLength;
+	std::cout << remainLength << std::endl;
+	innerBar->setFrameRectW(remainLength);
+}
+
+void Bar::deplete() {
+	int remainLength = 0;
+	innerBarLength = 0;
 	innerBar->setFrameRectW(remainLength);
 }
 
@@ -342,6 +381,10 @@ void Bar::setInnerBarLength(float p_length) {
 	innerBarLength = p_length;
 }
 
+void Bar::setLastTimeUpdate(Uint32 p_lastTime) {
+	lastTimeUpdate = p_lastTime;
+}
+
 //Skill Holder
 SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
 	: UI(p_pos, p_activeAnimation, p_animationUIs) {
@@ -349,12 +392,29 @@ SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimatio
 	Animation* newOnCoolDownAnimation = new Animation(*p_onCoolDownAnimation);
 	Bar* newBar = new Bar(*p_bar);
 
+	newActiveAnimation->setPos(p_pos);
+	newOnCoolDownAnimation->setPos(p_pos);
+	newBar->setPos(p_pos + Vector2f(w/2 - newBar->getWidth() / 2, 90));
+
+	animation = newActiveAnimation;
 	activeAnimation = newActiveAnimation;
 	onCoolDownAnimation = newOnCoolDownAnimation;
 	coolDownBar = newBar;
+
 
 	p_animationUIs.push_back(newActiveAnimation);
 	p_animationUIs.push_back(newOnCoolDownAnimation);
 	p_bars.push_back(newBar);
 }
 
+Bar* SkillHolder::getBar() {
+	return coolDownBar;
+}
+
+void SkillHolder::switchOnCoolDownAnimation() {
+	animation = onCoolDownAnimation;
+}
+
+void SkillHolder::switchActiveAnimation() {
+	animation = activeAnimation;
+}

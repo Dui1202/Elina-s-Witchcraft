@@ -70,6 +70,11 @@ void RenderWindow::renderUI(Bar* p_bar) {
 	renderAnimation(p_bar->getInnerAnimation());
 }
 
+void RenderWindow::renderUI(SkillHolder* p_skillHolder) {
+	renderAnimation(p_skillHolder->getAnimation());
+	renderUI(p_skillHolder->getBar());
+}
+
 
 void RenderWindow::renderText(Text* p_text) {
 	SDL_Rect dst;
@@ -77,6 +82,7 @@ void RenderWindow::renderText(Text* p_text) {
 	dst.y = p_text->getPos().y;
 	dst.w = p_text->getWidth() ;
 	dst.h = p_text->getHeight() ;
+
 
 	SDL_RenderCopy(renderer, p_text->getTextTexture(), NULL, &dst);
 }

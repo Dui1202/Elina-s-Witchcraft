@@ -34,7 +34,7 @@ Enemy::Enemy(const Enemy* p_enemy)
 
 	hpBar = newHpBar;
 	animation = newAnimation;
-	hpBar->setPos(getPos() + Vector2f(w - hpBar->getWidth() / 2, 0));
+	hpBar->setPos(getPos() + Vector2f(w / 2 - hpBar->getWidth() / 2, 0));
 
 	bars.push_back(newHpBar);
 	enemyAnimation.push_back(newAnimation);

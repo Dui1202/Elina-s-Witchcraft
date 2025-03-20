@@ -40,17 +40,6 @@ void Player::changeProjectile(SDL_Event& e) {
 Projectile* Player::getCurrentProjectile() {
 	return currentProjectile;
 }
-//Uint32 Player::getCoolDownFb() {
-//	return coolDownFb;
-//}
-//
-//Uint32 Player::getLastShotFb() {
-//	return lastShotFb;
-//}
-//
-//void Player::setLastShotFb(Uint32 p_lastShot) {
-//	lastShotFb = p_lastShot;
-//}
 
 int Player::getCoin() {
 	return coin;
@@ -58,4 +47,16 @@ int Player::getCoin() {
 
 void Player::setCoin(int p_coin) {
 	coin = p_coin;
+}
+
+Projectile* Player::getFireBallPrefab() {
+	return projectilePrefabs[0];
+}
+
+Projectile* Player::getSnowBallPrefab() {
+	return projectilePrefabs[1];
+}
+
+Projectile* Player::getWindStormPrefab() {
+	return projectilePrefabs[2];
 }
