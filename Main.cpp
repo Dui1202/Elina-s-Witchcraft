@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <vector>
 #include "RenderWindow.hpp"
 #include "Entity.h"
@@ -22,6 +23,9 @@ int main(int argc, char* agrs[]) {
 
 	if (TTF_Init() == -1) {
 		std::cout << "Failed to init TTF! Error: " << TTF_GetError() << std::endl;
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+		std::cerr << "SDL_mixer could not initialize! Error: " << Mix_GetError() << std::endl;
 	}
 	Game newGame;
 	newGame.start();

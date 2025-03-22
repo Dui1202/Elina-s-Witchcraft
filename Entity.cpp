@@ -21,6 +21,7 @@ Vector2f& Entity::getPos() {
 
 void Entity::setPos(const Vector2f& p_pos) {
 	pos = p_pos;
+	animation->setPos(p_pos);
 }
 
 

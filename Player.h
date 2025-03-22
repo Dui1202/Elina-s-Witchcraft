@@ -5,13 +5,15 @@
 #include "Math.h"
 #include "ProjectilesManager.h"
 #include "Animation.h"
+#include "InputManager.h"
+
 
 class Player : public GameObject {
 public:
 	Player();
 	Player(Vector2f p_pos, Animation* p_animation, std::vector<Projectile*> &p_projectilePrefabs);
 	void shootProjectile(std::vector<Projectile*>& projectilesVector, std::vector<Animation*>& animationProjectiles);
-	void changeProjectile(SDL_Event& e);
+	void changeProjectile(SDL_Event& e, InputManager& p_IM);
 	Projectile* getCurrentProjectile();
 	int getCoin();
 	void setCoin(int p_coin);

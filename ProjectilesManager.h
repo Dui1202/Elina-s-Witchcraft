@@ -29,11 +29,16 @@ public:
 	Uint32 getLastTick();
 	void setLastTick(Uint32 p_lastTick);
 	bool isOnCoolDown(Uint32 p_currentTime);
+	void levelUp();
+	int getUpgradeCoin();
+	void levelUpUpgradeCoin();
 private:  
 	Vector2f direction;
 	float speed;
 	float str;
 	Collider collider;
+	int level = 1;
+	int coinForUpgrade;
 	std::string name;
 	Uint32 coolDown;
 	Uint32 lastShot = 0;

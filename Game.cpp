@@ -41,7 +41,10 @@ enum enumText {
 	QUIT_TEXT,
 	SETTING_MODAL_TEXT,
 	SHOP_TEXT,
-	COIN_TEXT
+	COIN_TEXT,
+	LEVELUP_FIREBALL_TEXT,
+	LEVELUP_SNOWBALL_TEXT,
+	LEVELUP_WINDSTORM_TEXT
 };
 
 void circularMotion(Enemy* &p_enemy, Vector2f p_center, float p_angleSpeed) {
@@ -132,7 +135,7 @@ void Game::start() {
 
 	float snowBallSpeed = 10;
 	float snowBallStr = 2;
-	Uint32 snowBallCoolDown = 500;
+	Uint32 snowBallCoolDown = 2000;
 
 	float windStormSpeed = 6;
 	float windStormStr = 1;
@@ -140,7 +143,7 @@ void Game::start() {
 
 	float slimeSpeed = 2;
 	float slimeHp = 10;
-	int slimeCoinDrop = 5;
+	int slimeCoinDrop = 50;
 	Collider slimeCollider(SDL_Rect({ 1,1, 100, 100 }));
 
 	//Set some default scale
@@ -170,20 +173,28 @@ void Game::start() {
 	Animation* innerHpBarAnimation = new Animation(Vector2f(0, 0), innerHpBarTexture, 1, innerBarFrame, 100, renderScaleHpBar);
 	Animation* innerCoolDownBarAnimation = new Animation(Vector2f(0, 0), innerCoolDownBarTexture, 1, innerBarFrame, 100, renderScaleCoolDownBar);
 
+	Animation* bigButtonNormalAnimation = new Animation(Vector2f(0, 0), buttonNormalTexture, 1, buttonFrame, 100, 2);
+	Animation* bigButtonHoverAnimation = new Animation(Vector2f(0, 0), buttonHoverTexture, 1, buttonFrame, 100, 2);
+	Animation* bigButtonActiveAnimation = new Animation(Vector2f(0, 0), buttonActiveTexture, 1, buttonFrame, 100, 2);
 	//Set text
+	TTF_Font* normal8BitFont = TTF_OpenFont("./asset/font/VT323/VT323-Regular.ttf", 24);
 	TTF_Font* normalFont = TTF_OpenFont("./asset/font/Roboto/font.ttf", 20);
 	TTF_Font* boldFont = TTF_OpenFont("./asset/font/Roboto/static/Roboto_Condensed-SemiBold.ttf", 32);
 	SDL_Color black = { 0, 0, 0, 255 };
 	SDL_Color white = { 255, 255, 255, 255 };
 
-	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normalFont);
-	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normalFont);
-	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normalFont);
-	Text* playText = new Text("Play", Vector2f(0, 0), black, window.getRenderer(), normalFont);
-	Text* quitText = new Text("Quit", Vector2f(0, 0), black, window.getRenderer(), normalFont);
+	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normal8BitFont);
+	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* playText = new Text("Play", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* quitText = new Text("Quit", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* settingsModalText = new Text("Settings", Vector2f(0, 0), white, window.getRenderer(), boldFont);
-	Text* shopText = new Text("Shop", Vector2f(0, 0), black, window.getRenderer(), normalFont);
-	Text* coinText = new Text("Coin: 0", coinTextPosition, white, window.getRenderer(), normalFont);
+	Text* shopText = new Text("Shop", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* coinText = new Text("Coin: 0", coinTextPosition, white, window.getRenderer(), normal8BitFont);
+	Text* levelUpFireBallText = new Text("Level up Fireball!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* levelUpSnowBallText = new Text("Level up Snowball!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* levelUpWindStormText = new Text("Level up Windstorm!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+
 
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
@@ -192,10 +203,18 @@ void Game::start() {
 	Button* playButton = new Button(Vector2f(50, 50), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, emptyFunction);
 	Button* quitButton = new Button(Vector2f(100, 100), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, emptyFunction);
 	Button* shopButton = new Button(shopBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, shopText, animationUIs, std::bind(&Game::shopButtonFunction, this));
+	Button* LevelUpFireBallButton = new Button(Vector2f(0 ,0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpFireBallText, animationUIs, std::bind(&Game::levelUpFireBall, this));
+	Button* LevelUpSnowBallButton = new Button(Vector2f(0, 0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpSnowBallText, animationUIs, std::bind(&Game::levelUpSnowBall, this));
+	Button* LevelUpWindStormButton = new Button(Vector2f(0, 0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpWindStormText, animationUIs, std::bind(&Game::levelUpWindStorm, this));
 
 	//Set of buttons
 	buttonsInSettingModal.push_back(menuButton);
 	buttonsInSettingModal.push_back(resumeButton);
+
+	buttonsInShopModal.push_back(LevelUpFireBallButton);
+	buttonsInShopModal.push_back(LevelUpSnowBallButton);
+	buttonsInShopModal.push_back(LevelUpWindStormButton);
+
 
 	//Set Bar
 	float hpp = 100;
@@ -209,7 +228,7 @@ void Game::start() {
 
 	//Set modal
 	Modal* settingModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInSettingModal, settingsModalText, animationUIs);
-	Modal* shopModal = new Modal(Vector2f(0, 0), modalAnimation, empty, settingsModalText, animationUIs);
+	Modal* shopModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInShopModal, settingsModalText, animationUIs);
 
 	//Set Skill Holders
 	SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(200, 10), fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, animationUIs, bars);
@@ -266,6 +285,9 @@ void Game::start() {
 	texts.push_back(settingsModalText);
 	texts.push_back(shopText);
 	texts.push_back(coinText);
+	texts.push_back(levelUpFireBallText);
+	texts.push_back(levelUpSnowBallText);
+	texts.push_back(levelUpWindStormText);
 
 	buttons.push_back(settingsButton);
 	buttons.push_back(menuButton);
@@ -273,6 +295,9 @@ void Game::start() {
 	//buttons.push_back(playButton);
 	//buttons.push_back(quitButton);
 	buttons.push_back(shopButton);
+	buttons.push_back(LevelUpFireBallButton);
+	buttons.push_back(LevelUpSnowBallButton);
+	buttons.push_back(LevelUpWindStormButton);
 
 	modals.push_back(settingModal);
 	modals.push_back(shopModal);
@@ -341,7 +366,7 @@ void Game::logic() {
 				}
 				else if ((*pjIt)->getName() == "windStorm") {
 					if (runCoolDown((*eneIt)->getCoolDownDamageTick(), (*eneIt)->getLastTick())) {
-						(*eneIt)->setLastTick(currentTime);
+						(*eneIt)->setLastTick(currentTime - timePause);
 						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
 						(*eneIt)->getBar()->update((*pjIt)->getStr());
 
@@ -359,6 +384,7 @@ void Game::logic() {
 			++pjIt;
 		}
 	}
+
 }
 
 void Game::graphic() {
@@ -391,10 +417,10 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 
 	p_movement = Vector2f(0, 0);
 
-	if (inputManager.keyStates[SDLK_w]) p_movement.y -= 1;
-	if (inputManager.keyStates[SDLK_s]) p_movement.y += 1;
+	if (inputManager.keyStates[SDLK_w].isHold || inputManager.keyStates[SDLK_w].isStart) p_movement.y -= 1;
+	if (inputManager.keyStates[SDLK_s].isHold || inputManager.keyStates[SDLK_s].isStart) p_movement.y += 1;
 	if (runCoolDown(player->getCurrentProjectile()->getCoolDown(), player->getCurrentProjectile()->getLastShot())) {
-		if (inputManager.keyStates[SDLK_SPACE] && (!isGamePause)) {
+		if ((inputManager.keyStates[SDLK_SPACE].isHold || inputManager.keyStates[SDLK_SPACE].isStart) && (!isGamePause)) {
 			player->shootProjectile(projectiles, animationProjectiles);
 			player->getCurrentProjectile()->setLastShot(currentTime - timePause);
 			if (player->getCurrentProjectile()->getName() == "fireBall") {
@@ -406,13 +432,11 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 			else if (player->getCurrentProjectile()->getName() == "windStorm") {
 				skillHolders[WINDSTORM_SKILLHOLDER]->getBar()->reset();
 			}
-		};
+		}
 	}
-	player->changeProjectile(e);
+	player->changeProjectile(e, inputManager);
 
-	for (auto& btn : buttons) {
-		btn->handleInput(e);
-	}
+
 
 	p_movement.normalize();
 
@@ -459,22 +483,24 @@ void Game::update() {
 			}
 			accumulator -= timeStep;
 		}
+		for (auto& btn : buttons) {
+			btn->handleInput(inputManager);
+			btn->update();
+		}
+		updateCoin();
+		inputManager.update();
 
 		if (!isGamePause) {
-			std::cout << "Checking Spawn: CurrentTime = " << currentTime
-				<< ", LastTime = " << spawnManager.getLastTime()
-				<< ", Cooldown = " << spawnManager.getCooldown()
-				<< ", Time Diff = " << (currentTime - spawnManager.getLastTime())
-				<< ", Time Pause = " << timePause
-				<< std::endl;
 
 			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
 				spawnManager.spawnEnemy(enemies, animationEnemies, slime);
 				spawnManager.setLastTime(currentTime - timePause);
 			}
-		
+			
+			setPlayerInBound();
 			UILogic();
 			logic();
+
 		//Player movement
 			player->move(movement * playerSpeed);
 			playerIdleAnimation->setPos(player->getPos());
@@ -720,7 +746,7 @@ void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) 
 	//auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), p_enemy->getAnimation());
 	 
 	player->setCoin(player->getCoin() + (*eneIt)->getCoinDrop());
-	updateCoin();
+	
 	if (eneIt == enemies.end()) {
 		std::cout << "Didn't find an enemy to destroy!" << std::endl;
 		return;
@@ -752,6 +778,34 @@ void Game::shopButtonFunction() {
 	pause(SETTING_BUTTON);
 }
 
+void Game::levelUpFireBall() {
+	if (player->getCoin() >= projectilePrefabs[0]->getUpgradeCoin()) {
+		projectilePrefabs[0]->levelUp();
+		skillHolders[FIREBALL_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[0]->getCoolDown());
+		player->setCoin(player->getCoin() - projectilePrefabs[0]->getUpgradeCoin());
+		projectilePrefabs[0]->levelUpUpgradeCoin();
+	}
+}
+
+void Game::levelUpSnowBall() {
+	if (player->getCoin() >= projectilePrefabs[1]->getUpgradeCoin()) {
+		projectilePrefabs[1]->levelUp();
+		skillHolders[SNOWBALL_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[1]->getCoolDown());
+		player->setCoin(player->getCoin() - projectilePrefabs[1]->getUpgradeCoin());
+		projectilePrefabs[1]->levelUpUpgradeCoin();
+	}
+}
+
+void Game::levelUpWindStorm() {
+	if (player->getCoin() >= projectilePrefabs[2]->getUpgradeCoin()) {
+		projectilePrefabs[2]->levelUp();
+		skillHolders[WINDSTORM_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[2]->getCoolDown());
+		player->setCoin(player->getCoin() - projectilePrefabs[2]->getUpgradeCoin());
+		projectilePrefabs[2]->levelUpUpgradeCoin();
+
+	}
+}
+
 void Game::pause(int p_button) {
 	if (isGamePause) {
 		isGamePause = false;
@@ -773,6 +827,10 @@ bool Game::runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime) {
 
 void Game::updateCoin() {
 	texts[COIN_TEXT]->setText("Coin: " + std::to_string(player->getCoin()));
+	texts[LEVELUP_FIREBALL_TEXT]->setText("Level Up Fireball! Coin to upgrade: " + std::to_string(projectilePrefabs[0]->getUpgradeCoin()));
+	texts[LEVELUP_SNOWBALL_TEXT]->setText("Level Up Snowball! Coin to upgrade: " + std::to_string(projectilePrefabs[1]->getUpgradeCoin()));
+	texts[LEVELUP_WINDSTORM_TEXT]->setText("Level Up Windstorm! Coin to upgrade: " + std::to_string(projectilePrefabs[2]->getUpgradeCoin()));
+
 }
 
 void Game::UILogic() {
@@ -800,4 +858,13 @@ void Game::UILogic() {
 		skillHolders[WINDSTORM_SKILLHOLDER]->switchActiveAnimation();
 	}
 
+}
+
+void Game::setPlayerInBound() {
+	if (player->getPos().y >= (720 - 120)) {
+		player->setPos(Vector2f(player->getPos().x, 720 - 120));
+	}
+	else if (player->getPos().y <= 120) {
+		player->setPos(Vector2f(player->getPos().x, 120));
+	}
 }

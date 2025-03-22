@@ -5,6 +5,7 @@
 #include "Math.h"
 #include "Player.h"
 #include "ProjectilesManager.h"
+#include "InputManager.h"
 
 Player::Player()
 	: GameObject(Vector2f(0,0), nullptr){}
@@ -25,14 +26,15 @@ void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::v
 	animationProjectiles.push_back(newProjectileAnimation);
 }
 
-void Player::changeProjectile(SDL_Event& e) {
-	if (e.key.keysym.sym == SDLK_j) {
+void Player::changeProjectile(SDL_Event& e, InputManager& p_IM) {
+	if (p_IM.keyStates[SDLK_j].isHold) {
 		currentProjectile = projectilePrefabs[0];
 	}
-	else if (e.key.keysym.sym == SDLK_k) {
+	else if (p_IM.keyStates[SDLK_k].isHold) {
+		std::cout << "Change projectile!" << std::endl;
 		currentProjectile = projectilePrefabs[1];
 	}
-	else if (e.key.keysym.sym == SDLK_l) {
+	else if (p_IM.keyStates[SDLK_l].isHold) {
 		currentProjectile = projectilePrefabs[2];
 	}
 }

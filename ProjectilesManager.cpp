@@ -8,6 +8,15 @@ Projectile::Projectile()
 
 Projectile::Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, float p_speed, float p_str, Uint32 p_coolDown, Animation* p_animation)
 : GameObject(p_pos, p_animation), name(p_name), direction(p_shootDir), speed(p_speed), str(p_str), coolDown(p_coolDown) {
+	if (name == "windStorm") {
+		coinForUpgrade = 100;
+	}
+	else if (name == "fireBall") {
+		coinForUpgrade = 50;
+	}
+	else if (name == "snowBall") {
+		coinForUpgrade = 50;
+	}
 }
 
 void Projectile::update(Vector2f startpos, Uint32 currentTime) {
@@ -107,3 +116,38 @@ bool Projectile::isOnCoolDown(Uint32 p_currentTime) {
 	return offCoolDown;
 }
 
+void Projectile::levelUp() {
+	if (level < 5) {
+		level++;
+		std::cout << "Level Up!" << std::endl;
+		if (name == "windStorm") {
+			str += 0.5;
+			coolDown -= 500;
+		}
+		else if (name == "fireBall") {
+			str += 3;
+		}
+		else if (name == "snowBall") {
+			str += 1;
+			coolDown -= 200;
+		}
+	}
+}
+
+int Projectile::getUpgradeCoin() {
+	return coinForUpgrade;
+}
+
+void Projectile::levelUpUpgradeCoin() {
+	if (level < 5) {
+		if (name == "windStorm") {
+			coinForUpgrade += 100;
+		}
+		else if (name == "fireBall") {
+			coinForUpgrade += 50;
+		}
+		else if (name == "snowBall") {
+			coinForUpgrade += 50;
+		}
+	}
+}

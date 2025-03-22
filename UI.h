@@ -2,6 +2,7 @@
 #include <functional>
 #include "Text.h"
 #include <SDL.h>
+#include "InputManager.h"
 
 class UI {
 public:
@@ -28,14 +29,17 @@ class Button : public UI {
 public:
 	void setPos(Vector2f p_pos) override;
 	Button(Vector2f p_pos, Animation* p_animation, Animation* p_hoverAnimation, Animation* p_activeAnimation, Text* p_text, std::vector<Animation*>& p_animateButtons, std::function<void()> p_function);
-	bool isOnClick(const SDL_Event &e);
+	bool isOnClick( InputManager& p_IM);
 	bool isOn();
-	void handleInput(const SDL_Event &e);
+	bool isOnHold( InputManager& p_IM);
+	bool isClick(InputManager& p_IM);
+	void handleInput(InputManager& p_IM);
 	Text* getText();
 	void setVisible(bool p_bool);
 	bool getVisible();
 	bool getEnable();
 	void setEnable(bool p_bool);
+	void update();
 private:
 	std::function<void()> onClick;
 
@@ -83,6 +87,7 @@ public:
 	float getInnerBarLength();
 	void setInnerBarLength(float p_length);
 	void setLastTimeUpdate(Uint32 p_lastTime);
+	void setNewCoolDown(Uint32 p_setNewCoolDown);
 private:
 	Uint32 coolDown;
 	float hp;

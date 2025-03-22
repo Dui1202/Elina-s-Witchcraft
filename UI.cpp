@@ -88,8 +88,39 @@ void Button::setPos(Vector2f p_pos) {
 	pos = p_pos;
 }
 
-bool Button::isOnClick(const SDL_Event& e) {
-	if (e.type == SDL_MOUSEBUTTONDOWN) {
+bool Button::isOnClick(InputManager& p_IM) {
+	if (p_IM.mouseStates[SDL_BUTTON_LEFT].isRelease) {
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		Vector2f mouseVector2f(x, y);
+
+		bool isInside = true;
+
+		if (mouseVector2f.x < getPos().x) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.y < getPos().y) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.y > getPos().y + h) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.x > getPos().x + w) {
+			isInside = false;
+		}
+
+		return isInside;
+
+	}
+
+	return false;
+}
+
+bool Button::isClick(InputManager& p_IM) {
+	if (p_IM.mouseStates[SDL_BUTTON_LEFT].isStart) {
 		int x, y;
 		SDL_GetMouseState(&x, &y);
 		Vector2f mouseVector2f(x, y);
@@ -147,15 +178,53 @@ bool Button::isOn() {
 
 }
 
-void Button::handleInput(const SDL_Event &p_e) {
+bool Button::isOnHold(InputManager& p_IM) {
+	if (p_IM.mouseStates[SDL_BUTTON_LEFT].isHold) {
+		std::cout << "Is holding!" << std::endl;
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		Vector2f mouseVector2f(x, y);
+
+		bool isInside = true;
+
+		if (mouseVector2f.x < getPos().x) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.y < getPos().y) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.y > getPos().y + h) {
+			isInside = false;
+		}
+
+		if (mouseVector2f.x > getPos().x + w) {
+			isInside = false;
+		}
+
+		return isInside;
+
+	}
+
+	return false;
+}
+
+void Button::handleInput( InputManager& p_IM) {
 	if (isEnable) {
 		if (getVisible()) {
-			if (isOnClick(p_e)) {
+			if (isOnClick(p_IM)) {
 				onClick();
+				setAnimation(normalAnimation);
+			}
+			else if (isOnHold(p_IM)) {
 				setAnimation(activeAnimation);
 			}
 			else if (isOn()) {
 				setAnimation(hoverAnimation);
+			}
+			else if (isClick(p_IM)) {
+				onClick();
 			}
 			else {
 				setAnimation(normalAnimation);
@@ -184,6 +253,11 @@ void Button::setEnable(bool p_bool) {
 	isEnable = p_bool;
 }
 
+void Button::update() {
+	Vector2f textPos(getPos() + Vector2f(w / 2, h / 2) - Vector2f(text->getWidth() / 2, text->getHeight() / 2));
+	text->setPos(textPos);
+}
+
 Modal::Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*> &p_buttons, Text* p_heading, std::vector<Animation*> &p_animationUIs) 
 	:UI(p_pos, p_animation, p_animationUIs), buttons(p_buttons), text(p_heading)
 {
@@ -205,7 +279,7 @@ void Modal::setPos(Vector2f p_pos) {
 
 	for (auto& btn : buttons) {
 		
-		btn->setPos(p_pos + Vector2f(getWidth() / 2, 20 + i * 80 ) - Vector2f(btn->getAnimation()->getCurrentFrameRect().w / 2, 0));
+		btn->setPos(p_pos + Vector2f(getWidth() / 2 , 20 + i * (btn->getHeight() + 20)) - Vector2f(btn->getWidth() / 2, 0));
 		i++;
 	}
 }
@@ -383,6 +457,11 @@ void Bar::setInnerBarLength(float p_length) {
 
 void Bar::setLastTimeUpdate(Uint32 p_lastTime) {
 	lastTimeUpdate = p_lastTime;
+}
+
+void Bar::setNewCoolDown(Uint32 p_newCoolDown) {
+	coolDown = p_newCoolDown;
+	lengthEachPart = originalLength / coolDown;
 }
 
 //Skill Holder

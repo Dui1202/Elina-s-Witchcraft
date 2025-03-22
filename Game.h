@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <vector>
+#include <SDL_mixer.h>
 #include "Entity.h"
 #include "GameObject.h"
 #include "RenderWindow.hpp"
@@ -32,11 +33,15 @@ public:
 	void destroyOutOfBound();
 	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
 	void destroyProjectile(Projectile* p_projectile, std::vector<Projectile*>::iterator& p_prjIt);
+	void setPlayerInBound();
 
 	void updateCoin();
 	//Button functions
 	void settingsButtonFunction();
 	void shopButtonFunction();
+	void levelUpFireBall();
+	void levelUpSnowBall();
+	void levelUpWindStorm();
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
@@ -56,8 +61,11 @@ private:
 	std::vector<Enemy*> enemies;
 	std::vector<Text*> texts;
 	std::vector<Button*> buttons;
+
 	std::vector<Button*> buttonsInSettingModal;
 	std::vector<Button*> buttonsInMenu;
+	std::vector<Button*> buttonsInShopModal;
+
 	std::vector<Modal*> modals;
 	std::vector<Bar*> bars;
 	std::vector<SkillHolder*> skillHolders;
@@ -75,6 +83,13 @@ private:
 	Uint32 startPause = 0;
 	Uint32 lastPause = 0;
 	Uint32 timePause = 0;
+
+	int slimeSpawnCount = 0;
+	int orcSpawnCount = 0;
+	int iceSlimeSpawnCount = 0;
+	int fireSlimeSpawnCount = 0;
+	int windSlimeSpawnCount = 0;
+	int mikuSpawnCount = 0;
 
 	bool isGamePause = false;
 	bool isGameOver = true;
