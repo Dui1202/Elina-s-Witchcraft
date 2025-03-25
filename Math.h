@@ -13,3 +13,5 @@ public:
 	Vector2f operator*(float other) const;
 	Vector2f operator/(float other) const;
 };
+
+int random(int p_startValue, int p_endValue);

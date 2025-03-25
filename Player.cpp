@@ -16,7 +16,7 @@ Player::Player(Vector2f p_pos, Animation* p_animation, std::vector<Projectile*> 
 }
 
 void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::vector<Animation*>& animationProjectiles) {
-	std::cout << "Shoot "<< currentProjectile->getName() <<"!" << std::endl;
+	//std::cout << "Shoot "<< currentProjectile->getName() <<"!" << std::endl;
 	
 	Animation* newProjectileAnimation = new Animation(*(currentProjectile->getAnimation()));
 	Projectile* newProjectile = new Projectile(currentProjectile->getName(), currentProjectile->getPos(), currentProjectile->getDirection(), currentProjectile->getSpeed(), currentProjectile->getStr(), currentProjectile->getCoolDown(), newProjectileAnimation);
@@ -26,12 +26,11 @@ void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::v
 	animationProjectiles.push_back(newProjectileAnimation);
 }
 
-void Player::changeProjectile(SDL_Event& e, InputManager& p_IM) {
+void Player::changeProjectile(InputManager& p_IM) {
 	if (p_IM.keyStates[SDLK_j].isHold) {
 		currentProjectile = projectilePrefabs[0];
 	}
 	else if (p_IM.keyStates[SDLK_k].isHold) {
-		std::cout << "Change projectile!" << std::endl;
 		currentProjectile = projectilePrefabs[1];
 	}
 	else if (p_IM.keyStates[SDLK_l].isHold) {

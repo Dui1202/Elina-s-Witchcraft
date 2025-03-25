@@ -72,6 +72,9 @@ void RenderWindow::renderUI(Bar* p_bar) {
 
 void RenderWindow::renderUI(SkillHolder* p_skillHolder) {
 	renderAnimation(p_skillHolder->getAnimation());
+	if (p_skillHolder->getIsActive()) {
+		renderAnimation(p_skillHolder->getIndicator());
+	}
 	renderUI(p_skillHolder->getBar());
 }
 

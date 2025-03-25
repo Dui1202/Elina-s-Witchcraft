@@ -103,12 +103,18 @@ private:
 
 class SkillHolder : public UI {
 public: 
-	SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*>& p_animationUIs, std::vector<Bar*>& p_bars);
+	SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, Animation* p_indicator, std::vector<Animation*>& p_animationUIs, std::vector<Bar*>& p_bars);
 	Bar* getBar();
 	void switchOnCoolDownAnimation();
 	void switchActiveAnimation();
+	bool getIsActive();
+	void setIsActive(bool p_bool);
+	Animation* getIndicator();
 private:
+	bool isActive = false;
 	Bar* coolDownBar;
 	Animation* activeAnimation;
 	Animation* onCoolDownAnimation;
+	Text* levelText;
+	Animation* indicator;
 };

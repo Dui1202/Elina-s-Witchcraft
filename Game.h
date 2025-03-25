@@ -42,6 +42,8 @@ public:
 	void levelUpFireBall();
 	void levelUpSnowBall();
 	void levelUpWindStorm();
+
+
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
@@ -54,6 +56,7 @@ private:
 	std::vector<Animation*> animationPrefabs;
 	std::vector<Enemy*> enemyPrefabs;
 	std::vector<Bar*> barPrefabs;
+	std::vector<Wave> wavePrefabs;
 
 	//In-game
 	std::vector<Projectile*> projectiles;
@@ -90,6 +93,9 @@ private:
 	int fireSlimeSpawnCount = 0;
 	int windSlimeSpawnCount = 0;
 	int mikuSpawnCount = 0;
+
+	int gameHP;
+	int gameScore;
 
 	bool isGamePause = false;
 	bool isGameOver = true;

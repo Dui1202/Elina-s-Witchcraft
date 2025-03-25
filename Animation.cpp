@@ -8,7 +8,7 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 	
 	
 	for (int i = 1; i <= frames; i++) {
-		SDL_Rect frame = { frameSize.x+ (frameSize.w * (i - 1)) , 0, frameSize.w, frameSize.h};
+		SDL_Rect frame = { frameSize.x + (frameSize.w * (i - 1)) , frameSize.y, frameSize.w, frameSize.h};
 		frameSrcs.push_back(frame);
 	}
 
@@ -18,8 +18,7 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 	h = frameSize.h * p_renderScale;
 }
 
-Animation::Animation() {
-}
+
 
 void Animation::update(Uint32 p_currentTime) {
 	if (p_currentTime - timeLastFrame >= timePerFrame) {

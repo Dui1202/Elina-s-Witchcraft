@@ -7,15 +7,15 @@
 #include "Collision.h"
 #include "UI.h"
 
-Enemy::Enemy(Vector2f spawn_pos, Animation* p_animation, Vector2f p_direction, float p_speed, float p_hp, int p_coinDrop, Bar* p_bar, std::vector<Bar*>& p_bars, std::vector<Animation*>& p_enemyAnimation)
-	: GameObject(spawn_pos, p_animation), direction(p_direction), speed(p_speed), hp(p_hp), coinDrop(p_coinDrop), bars(p_bars), enemyAnimation(p_enemyAnimation) {
+Enemy::Enemy(std::string p_name, Vector2f spawn_pos, Animation* p_animation, Vector2f p_direction, float p_speed, float p_hp, int p_coinDrop, Bar* p_bar, std::vector<Bar*>& p_bars, std::vector<Animation*>& p_enemyAnimation)
+	: GameObject(spawn_pos, p_animation), name(p_name), direction(p_direction), speed(p_speed), hp(p_hp), coinDrop(p_coinDrop), bars(p_bars), enemyAnimation(p_enemyAnimation) {
 
 	h = animation->getHeight();
 	w = animation->getWidth();
 
 	Bar* newHpBar = new Bar(p_bar);
-
-	std::cout << "JALKFJAWJ   " << p_bar << " " << newHpBar << std::endl;
+	SDL_Rect hb = { getPos().x, getPos().y, w, h };
+	collider = Collider(hb);
 
 
 
@@ -25,12 +25,14 @@ Enemy::Enemy(Vector2f spawn_pos, Animation* p_animation, Vector2f p_direction, f
 }
 
 Enemy::Enemy(const Enemy* p_enemy)
-	: GameObject(p_enemy->pos, p_enemy->animation), direction(p_enemy->direction), speed(p_enemy->speed), hp(p_enemy->hp), coinDrop(p_enemy->coinDrop), bars(p_enemy->bars), enemyAnimation(p_enemy->enemyAnimation){
+	: GameObject(p_enemy->pos, p_enemy->animation), direction(p_enemy->direction), speed(p_enemy->speed), hp(p_enemy->hp), coinDrop(p_enemy->coinDrop), bars(p_enemy->bars), enemyAnimation(p_enemy->enemyAnimation), name(p_enemy->name){
 	Bar* newHpBar = new Bar(p_enemy->hpBar);
 	Animation* newAnimation = new Animation(*(p_enemy->animation));
 	h = animation->getHeight();
 	w = animation->getWidth();
 
+	SDL_Rect hb = { getPos().x, getPos().y, w, h };
+	collider = Collider(hb);
 
 	hpBar = newHpBar;
 	animation = newAnimation;
@@ -61,7 +63,7 @@ void Enemy::movement() {
 }
 
 void Enemy::update(Uint32 currentTime) {
-	SDL_Rect hb = { getPos().x + 10,getPos().y + 10, 64, 64};
+	SDL_Rect hb = { getPos().x + 10,getPos().y, w - 10, h - 5};
 	movement();
 	getAnimation()->update(currentTime);
 	getAnimation()->setPos(getPos());
@@ -131,4 +133,8 @@ Bar* Enemy::getBar() {
 void Enemy::setHpBar(Bar* p_bar) {
 	hpBar = p_bar;
 
+}
+
+std::string Enemy::getName() {
+	return name;
 }

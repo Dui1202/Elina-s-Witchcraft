@@ -8,7 +8,7 @@
 
 class Enemy : public GameObject {
 public:
-	Enemy(Vector2f spawn_pos, Animation* p_animation, Vector2f p_direction, float p_speed, float p_hp, int p_coinDrop, Bar* p_bar, std::vector<Bar*>& p_bars, std::vector<Animation*>& p_enemyAnimation);
+	Enemy(std::string p_name, Vector2f spawn_pos, Animation* p_animation, Vector2f p_direction, float p_speed, float p_hp, int p_coinDrop, Bar* p_bar, std::vector<Bar*>& p_bars, std::vector<Animation*>& p_enemyAnimation);
 	Enemy(const Enemy* other);
 	~Enemy();
 	void setPos(const Vector2f& p_pos) override;
@@ -30,7 +30,9 @@ public:
 	void setCoinDrop(int p_coinDrop);
 	Bar* getBar();
 	void setHpBar(Bar* p_bar);
+	std::string getName();
 private:
+	std::string name;
 	Vector2f direction;
 	float speed;
 	float hp;

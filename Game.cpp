@@ -13,39 +13,9 @@
 #include "Enemy.h"
 #include "Collision.h"
 #include "UI.h"
+#include "Wave.h"
+#include "Enums.h"
 #include <string>
-
-enum enumSkillHolder {
-	FIREBALL_SKILLHOLDER,
-	SNOWBALL_SKILLHOLDER,
-	WINDSTORM_SKILLHOLDER
-};
-
-enum enumModal{
-	SETTING_MODAL,
-	SHOP_MODAL
-};
-
-enum enumButton {
-	SETTING_BUTTON,
-	MENU_BUTTON,
-	RESUME_BUTTON,
-	SHOP_BUTTON
-};
-
-enum enumText {
-	SETTING_TEXT,
-	MENU_TEXT,
-	RESUME_TEXT,
-	PLAY_TEXT,
-	QUIT_TEXT,
-	SETTING_MODAL_TEXT,
-	SHOP_TEXT,
-	COIN_TEXT,
-	LEVELUP_FIREBALL_TEXT,
-	LEVELUP_SNOWBALL_TEXT,
-	LEVELUP_WINDSTORM_TEXT
-};
 
 void circularMotion(Enemy* &p_enemy, Vector2f p_center, float p_angleSpeed) {
 	float radius = 20;
@@ -87,7 +57,13 @@ void Game::start() {
 		"./asset/UI/windstorm_skillholder.png",
 		"./asset/UI/outer_bar.png",
 		"./asset/UI/inner_hp_bar.png",
-		"./asset/UI/inner_cooldown_bar.png"
+		"./asset/UI/inner_cooldown_bar.png",
+		"./asset/UI/long_button.png",
+		"./asset/UI/indicator.png",
+		"./asset/golem_move_sprite.png",
+		"./asset/miku_move_sprite.png",
+		"./asset/fire_slime_move_sprite.png",
+		"./asset/ice_slime_move_sprite.png"
 	};
 	resourceManager.loadTexture(allTexturePaths);
 
@@ -109,9 +85,19 @@ void Game::start() {
 	SDL_Texture* outerBarTexture = resourceManager.getTexture(allTexturePaths[14]);
 	SDL_Texture* innerHpBarTexture = resourceManager.getTexture(allTexturePaths[15]);
 	SDL_Texture* innerCoolDownBarTexture = resourceManager.getTexture(allTexturePaths[16]);
+	SDL_Texture* longButtonTexture = resourceManager.getTexture(allTexturePaths[17]);
+	SDL_Texture* indicatorTexture = resourceManager.getTexture(allTexturePaths[18]);
+	SDL_Texture* golemMoveTexture = resourceManager.getTexture(allTexturePaths[19]);
+	SDL_Texture* mikuMoveTexture = resourceManager.getTexture(allTexturePaths[20]);
+	SDL_Texture* fireSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[21]);
+	SDL_Texture* iceSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[22]);
+
+
+
 
 	//Set some frames
 	SDL_Rect defaultFrame = { 0, 0 , 64, 64 };
+	SDL_Rect p128Frame = { 0, 0, 128 ,128 };
 	SDL_Rect grassFrame = { 0, 0, 240, 120 };
 	SDL_Rect buttonFrame = { 0, 0, 128 , 64 };
 	SDL_Rect modalFrame = { 0, 0, 600, 600 };
@@ -121,6 +107,10 @@ void Game::start() {
 	SDL_Rect windStormFrame = { 0, 0, 64, 128 };
 	SDL_Rect outerBarFrame = { 0, 0, 128, 16 };
 	SDL_Rect innerBarFrame = { 0, 0, 124, 12 };
+	SDL_Rect normalLongButtonFrame = { 0, 0, 512, 64 };
+	SDL_Rect hoverLongButtonFrame = { 0, 64, 512, 64 };
+	SDL_Rect activeLongButtonFrame = { 0, 128, 512, 64 };
+	SDL_Rect indicatorFrame = { 0, 0, 100, 100 };
 
 	//Set some default positions
 	Vector2f settingBtnPosition(1100, 10);
@@ -141,10 +131,18 @@ void Game::start() {
 	float windStormStr = 1;
 	Uint32 windStormCoolDown = 1000;
 
-	float slimeSpeed = 2;
+	float slimeSpeed = 1.5;
 	float slimeHp = 10;
-	int slimeCoinDrop = 50;
-	Collider slimeCollider(SDL_Rect({ 1,1, 100, 100 }));
+	int slimeCoinDrop = 5;
+	//Collider slimeCollider(SDL_Rect({ 1,1, 100, 100 }));
+
+	float golemSpeed = 0.8;
+	float golemHp = 30;
+	int golemCoinDrop = 20;
+
+	float mikuSpeed = 5;
+	float mikuHp = 5;
+	int mikuCoinDrop = 5;
 
 	//Set some default scale
 	float renderScale64 = 1.5;
@@ -173,9 +171,17 @@ void Game::start() {
 	Animation* innerHpBarAnimation = new Animation(Vector2f(0, 0), innerHpBarTexture, 1, innerBarFrame, 100, renderScaleHpBar);
 	Animation* innerCoolDownBarAnimation = new Animation(Vector2f(0, 0), innerCoolDownBarTexture, 1, innerBarFrame, 100, renderScaleCoolDownBar);
 
-	Animation* bigButtonNormalAnimation = new Animation(Vector2f(0, 0), buttonNormalTexture, 1, buttonFrame, 100, 2);
-	Animation* bigButtonHoverAnimation = new Animation(Vector2f(0, 0), buttonHoverTexture, 1, buttonFrame, 100, 2);
-	Animation* bigButtonActiveAnimation = new Animation(Vector2f(0, 0), buttonActiveTexture, 1, buttonFrame, 100, 2);
+	Animation* longButtonNormalAnimation = new Animation(Vector2f(0, 0), longButtonTexture, 1, normalLongButtonFrame, 100);
+	Animation* longButtonHoverAnimation = new Animation(Vector2f(0, 0), longButtonTexture, 1, hoverLongButtonFrame, 100);
+	Animation* longButtonActiveAnimation = new Animation(Vector2f(0, 0), longButtonTexture, 1, activeLongButtonFrame, 100);
+
+	Animation* indicatorAnimation = new Animation(Vector2f(0, 0), indicatorTexture, 1, indicatorFrame, 100);
+	Animation* golemMoveAnimation = new Animation(Vector2f(0, 0), golemMoveTexture, 3, defaultFrame, 200, 2.5);
+	Animation* mikuMoveAnimation = new Animation(Vector2f(0, 0), mikuMoveTexture, 2, p128Frame, 100);
+	Animation* fireSlimeAnimation = new Animation(Vector2f(0, 0), fireSlimeMoveTexture, 2, defaultFrame, 200, renderScale64);
+	Animation* iceSlimeAnimation = new Animation(Vector2f(0, 0), iceSlimeMoveTexture, 2, defaultFrame, 400, renderScale64);
+
+
 	//Set text
 	TTF_Font* normal8BitFont = TTF_OpenFont("./asset/font/VT323/VT323-Regular.ttf", 24);
 	TTF_Font* normalFont = TTF_OpenFont("./asset/font/Roboto/font.ttf", 20);
@@ -203,9 +209,9 @@ void Game::start() {
 	Button* playButton = new Button(Vector2f(50, 50), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, emptyFunction);
 	Button* quitButton = new Button(Vector2f(100, 100), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, emptyFunction);
 	Button* shopButton = new Button(shopBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, shopText, animationUIs, std::bind(&Game::shopButtonFunction, this));
-	Button* LevelUpFireBallButton = new Button(Vector2f(0 ,0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpFireBallText, animationUIs, std::bind(&Game::levelUpFireBall, this));
-	Button* LevelUpSnowBallButton = new Button(Vector2f(0, 0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpSnowBallText, animationUIs, std::bind(&Game::levelUpSnowBall, this));
-	Button* LevelUpWindStormButton = new Button(Vector2f(0, 0), bigButtonNormalAnimation, bigButtonHoverAnimation, bigButtonActiveAnimation, levelUpWindStormText, animationUIs, std::bind(&Game::levelUpWindStorm, this));
+	Button* LevelUpFireBallButton = new Button(Vector2f(0 ,0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpFireBallText, animationUIs, std::bind(&Game::levelUpFireBall, this));
+	Button* LevelUpSnowBallButton = new Button(Vector2f(0, 0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpSnowBallText, animationUIs, std::bind(&Game::levelUpSnowBall, this));
+	Button* LevelUpWindStormButton = new Button(Vector2f(0, 0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpWindStormText, animationUIs, std::bind(&Game::levelUpWindStorm, this));
 
 	//Set of buttons
 	buttonsInSettingModal.push_back(menuButton);
@@ -219,6 +225,8 @@ void Game::start() {
 	//Set Bar
 	float hpp = 100;
 	Bar* slimeHpBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerHpBarAnimation, slimeHp, animationUIs);
+	Bar* golemHpBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerHpBarAnimation, golemHp, animationUIs);
+	Bar* mikuHpBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerHpBarAnimation, mikuHp, animationUIs);
 	Bar* fireBallCDBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerCoolDownBarAnimation, fireBallCoolDown, animationUIs);
 	Bar* snowBallCDBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerCoolDownBarAnimation, snowBallCoolDown, animationUIs);
 	Bar* windStormCDBar = new Bar(Vector2f(0, 0), outerBarAnimation, innerCoolDownBarAnimation, windStormCoolDown, animationUIs);
@@ -231,9 +239,9 @@ void Game::start() {
 	Modal* shopModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInShopModal, settingsModalText, animationUIs);
 
 	//Set Skill Holders
-	SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(200, 10), fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, animationUIs, bars);
-	SkillHolder* snowBallSkillHolder = new SkillHolder(Vector2f(310, 10), snowBallCDBar, snowBallSkillHolderAnimation, snowBallSkillHolderCoolDownAnimation, animationUIs, bars);
-	SkillHolder* windStormSkillHolder = new SkillHolder(Vector2f(420, 10), windStormCDBar, windStormSkillHolderAnimation, windStormSkillHolderCoolDownAnimation, animationUIs, bars);
+	SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(200, 10), fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
+	SkillHolder* snowBallSkillHolder = new SkillHolder(Vector2f(310, 10), snowBallCDBar, snowBallSkillHolderAnimation, snowBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
+	SkillHolder* windStormSkillHolder = new SkillHolder(Vector2f(420, 10), windStormCDBar, windStormSkillHolderAnimation, windStormSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
 
 	//Set projectiles
 	Projectile* fireball = new Projectile("fireBall", Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallCoolDown, fireBallAnimation);
@@ -241,11 +249,36 @@ void Game::start() {
 	Projectile* windStorm = new Projectile("windStorm", Vector2f(0, 0), Vector2f(1, 0), windStormSpeed, windStormStr, windStormCoolDown, windStormAnimation);
 
 	//Set enemies
-	Enemy* slime = new Enemy(Vector2f(0, 0), slimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp, slimeCoinDrop, slimeHpBar, bars, animationEnemies);
+	Enemy* slime = new Enemy("slime", Vector2f(0, 0), slimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp, slimeCoinDrop, slimeHpBar, bars, animationEnemies);
+	Enemy* golem = new Enemy("golem", Vector2f(0, 0), golemMoveAnimation, Vector2f(-1, 0), golemSpeed, golemHp, golemCoinDrop, golemHpBar, bars, animationEnemies);
+	Enemy* miku = new Enemy("miku", Vector2f(0, 0), mikuMoveAnimation, Vector2f(-1, 0), mikuSpeed, mikuHp, mikuCoinDrop, mikuHpBar, bars, animationEnemies);
+	Enemy* fireSlime = new Enemy("fireSlime", Vector2f(0, 0), fireSlimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp, slimeCoinDrop, slimeHpBar, bars, animationEnemies);
+	Enemy* iceSlime = new Enemy("iceSlime", Vector2f(0, 0), iceSlimeAnimation, Vector2f(-1, 0), slimeSpeed, slimeHp, slimeCoinDrop, slimeHpBar, bars, animationEnemies);
+
+	enemyPrefabs.push_back(slime);
+	enemyPrefabs.push_back(golem);
+	enemyPrefabs.push_back(miku);
+	enemyPrefabs.push_back(fireSlime);
+	enemyPrefabs.push_back(iceSlime);
 
 	//Set positions
 	settingModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(settingModal->getWidth() / 2, settingModal->getHeight() / 2));
 	shopModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(shopModal->getWidth() / 2, shopModal->getHeight() / 2));
+
+	//Prefab waves
+
+		//Repeating wave
+	Wave wavePrefab1(10, 0, 0, 10, 10);
+	Wave wavePrefab2(0, 20, 5, 0, 0);
+	Wave wavePrefab3(5, 5, 5, 5, 5);
+	Wave wavePrefab4(15, 0, 10, 1, 0);
+	Wave wavePrefab5(0, 0, 0, 15, 15);
+
+	wavePrefabs.push_back(wavePrefab1);
+	wavePrefabs.push_back(wavePrefab2);
+	wavePrefabs.push_back(wavePrefab3);
+	wavePrefabs.push_back(wavePrefab4);
+	wavePrefabs.push_back(wavePrefab5);
 
 	//Push all animations for easier deconstruction
 	animationPrefabs.push_back(playerIdleAnimation);
@@ -270,12 +303,13 @@ void Game::start() {
 	projectilePrefabs.push_back(snowBall);
 	projectilePrefabs.push_back(windStorm);
 
+
+
 	//Set player
 	player = new Player(Vector2f(0, 362), nullptr, projectilePrefabs);
 	playerIdleAnimation->setPos(player->getPos());
 	player->setAnimation(playerIdleAnimation);
 
-	enemyPrefabs.push_back(slime);
 
 	texts.push_back(settingsText);
 	texts.push_back(menuText);
@@ -312,6 +346,8 @@ void Game::start() {
 		skillHolder->getBar()->deplete();
 	}
 
+	spawnManager.setWavePrefabs(wavePrefabs);
+	spawnManager.setActiveEnemies(&enemies);
 }
 
 void Game::debug() {
@@ -332,12 +368,23 @@ void Game::logic() {
 		for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ++eneIt) {
 			if ((*pjIt)->getCollider().checkCollide((*eneIt)->getCollider())) {
 				if ((*pjIt)->getName() == "fireBall") {
-					std::cout << "Collide with enemy!" << std::endl;
+					//std::cout << "Collide with enemy!" << std::endl;
 
 					if (runCoolDown((*pjIt)->getCoolDownDamageTick(), (*pjIt)->getLastTick())) {
 						(*pjIt)->setLastTick(currentTime);
-						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
-						(*eneIt)->getBar()->update((*pjIt)->getStr());
+
+						if ((*eneIt)->getName() == "iceSlime") {
+							(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr() * 2);
+							(*eneIt)->getBar()->update((*pjIt)->getStr() * 2);
+						}
+						else if ((*eneIt)->getName() == "fireSlime") {
+							//do nothing
+						}
+						else {
+							(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+							(*eneIt)->getBar()->update((*pjIt)->getStr());
+						}
+						
 					}
 					destroyProjectile(*pjIt, pjIt);
 					if ((*eneIt)->getHp() <= 0) {
@@ -350,12 +397,23 @@ void Game::logic() {
 
 					if (runCoolDown((*pjIt)->getCoolDownDamageTick(), (*pjIt)->getLastTick())) {
 						(*pjIt)->setLastTick(currentTime);
-						(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
-						(*eneIt)->setSpeed((*eneIt)->getSpeed() / 2);
-						std::cout << (*pjIt)->getStr() << std::endl;
-						(*eneIt)->getBar()->update((*pjIt)->getStr());
+						if ((*eneIt)->getName() == "fireSlime") {
+							(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr() * 2);
+							(*eneIt)->getBar()->update((*pjIt)->getStr() * 2);
+							(*eneIt)->setSpeed((*eneIt)->getSpeed() / 2);
+						}
+						else if ((*eneIt)->getName() == "iceSlime") {
+							// do nothing
+						}
+						else {
+							(*eneIt)->setHp((*eneIt)->getHp() - (*pjIt)->getStr());
+							(*eneIt)->getBar()->update((*pjIt)->getStr());
+							(*eneIt)->setSpeed((*eneIt)->getSpeed() / 2);
+						}
+						
 
 					}
+
 
 					destroyProjectile(*pjIt, pjIt);
 					if ((*eneIt)->getHp() <= 0) {
@@ -371,7 +429,9 @@ void Game::logic() {
 						(*eneIt)->getBar()->update((*pjIt)->getStr());
 
 					}
-					circularMotion((*eneIt), (*pjIt)->getPos(), 0.5);
+					if ((*eneIt)->getName() != "golem") {
+						circularMotion((*eneIt), (*pjIt)->getPos(), 0.5);
+					}
 					if ((*eneIt)->getHp() <= 0) {
 						destroyEnemy(*eneIt, eneIt);
 					}
@@ -434,9 +494,6 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 			}
 		}
 	}
-	player->changeProjectile(e, inputManager);
-
-
 
 	p_movement.normalize();
 
@@ -489,11 +546,15 @@ void Game::update() {
 		}
 		updateCoin();
 		inputManager.update();
+		player->changeProjectile(inputManager);
 
 		if (!isGamePause) {
-
 			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
-				spawnManager.spawnEnemy(enemies, animationEnemies, slime);
+				if (spawnManager.getIsWaveEnd()) {
+					int randomValue = random(0, 4);
+					spawnManager.setEnemy(wavePrefabs[randomValue]);
+				}
+				spawnManager.spawnEnemy(enemies, enemyPrefabs);
 				spawnManager.setLastTime(currentTime - timePause);
 			}
 			
@@ -839,6 +900,7 @@ void Game::UILogic() {
 	skillHolders[WINDSTORM_SKILLHOLDER]->getBar()->update(currentTime - player->getWindStormPrefab()->getLastShot() - timePause);
 	if (player->getFireBallPrefab()->isOnCoolDown(currentTime - timePause)) {
 		skillHolders[FIREBALL_SKILLHOLDER]->switchOnCoolDownAnimation();
+		
 	}
 	else {
 		skillHolders[FIREBALL_SKILLHOLDER]->switchActiveAnimation();
@@ -858,6 +920,26 @@ void Game::UILogic() {
 		skillHolders[WINDSTORM_SKILLHOLDER]->switchActiveAnimation();
 	}
 
+	if (player->getCurrentProjectile()->getName() == "fireBall") {
+		for (auto& sh : skillHolders) {
+			sh->setIsActive(false);
+		}
+		skillHolders[FIREBALL_SKILLHOLDER]->setIsActive(true);
+	}
+
+	if (player->getCurrentProjectile()->getName() == "snowBall") {
+		for (auto& sh : skillHolders) {
+			sh->setIsActive(false);
+		}
+		skillHolders[SNOWBALL_SKILLHOLDER]->setIsActive(true);
+	}
+
+	if (player->getCurrentProjectile()->getName() == "windStorm") {
+		for (auto& sh : skillHolders) {
+			sh->setIsActive(false);
+		}
+		skillHolders[WINDSTORM_SKILLHOLDER]->setIsActive(true);
+	}
 }
 
 void Game::setPlayerInBound() {
@@ -868,3 +950,4 @@ void Game::setPlayerInBound() {
 		player->setPos(Vector2f(player->getPos().x, 120));
 	}
 }
+

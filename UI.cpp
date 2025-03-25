@@ -180,7 +180,6 @@ bool Button::isOn() {
 
 bool Button::isOnHold(InputManager& p_IM) {
 	if (p_IM.mouseStates[SDL_BUTTON_LEFT].isHold) {
-		std::cout << "Is holding!" << std::endl;
 		int x, y;
 		SDL_GetMouseState(&x, &y);
 		Vector2f mouseVector2f(x, y);
@@ -413,7 +412,7 @@ void Bar::update(float p_minusHp) {
 	innerBarLength = innerBarLength - (lengthEachPart * p_minusHp);
 	int remainLength = static_cast<int>(innerBarLength);
 	innerBar->setFrameRectW(remainLength);
-	std::cout << remainLength << std::endl;
+	//std::cout << remainLength << std::endl;
 }
 
 void Bar::update(Uint32 p_time) {
@@ -434,10 +433,10 @@ void Bar::run(Uint32 &currentTime) {
 }
 
 void Bar::reset() {
-	std::cout << "Bar reset!" << std::endl;
+	//std::cout << "Bar reset!" << std::endl;
 	int remainLength = static_cast<int>(originalLength);
 	innerBarLength = originalLength;
-	std::cout << remainLength << std::endl;
+	//std::cout << remainLength << std::endl;
 	innerBar->setFrameRectW(remainLength);
 }
 
@@ -465,24 +464,28 @@ void Bar::setNewCoolDown(Uint32 p_newCoolDown) {
 }
 
 //Skill Holder
-SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
+SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, Animation* p_indicatorAnimation, std::vector<Animation*> &p_animationUIs, std::vector<Bar*> &p_bars)
 	: UI(p_pos, p_activeAnimation, p_animationUIs) {
 	Animation* newActiveAnimation = new Animation(*p_activeAnimation);
 	Animation* newOnCoolDownAnimation = new Animation(*p_onCoolDownAnimation);
+	Animation* newIndicatorAnimation = new Animation(*p_indicatorAnimation);
 	Bar* newBar = new Bar(*p_bar);
 
 	newActiveAnimation->setPos(p_pos);
 	newOnCoolDownAnimation->setPos(p_pos);
+	newIndicatorAnimation->setPos(p_pos);
 	newBar->setPos(p_pos + Vector2f(w/2 - newBar->getWidth() / 2, 90));
 
 	animation = newActiveAnimation;
 	activeAnimation = newActiveAnimation;
 	onCoolDownAnimation = newOnCoolDownAnimation;
+	indicator = newIndicatorAnimation;
 	coolDownBar = newBar;
 
 
 	p_animationUIs.push_back(newActiveAnimation);
 	p_animationUIs.push_back(newOnCoolDownAnimation);
+	p_animationUIs.push_back(newIndicatorAnimation);
 	p_bars.push_back(newBar);
 }
 
@@ -496,4 +499,16 @@ void SkillHolder::switchOnCoolDownAnimation() {
 
 void SkillHolder::switchActiveAnimation() {
 	animation = activeAnimation;
+}
+
+Animation* SkillHolder::getIndicator() {
+	return indicator;
+}
+
+bool SkillHolder::getIsActive() {
+	return isActive;
+}
+
+void SkillHolder::setIsActive(bool p_bool) {
+	isActive = p_bool;
 }
