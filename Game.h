@@ -15,6 +15,7 @@
 #include "Enemy.h"
 #include "SpawnManager.h"
 #include "UI.h"
+#include "AudioManager.h"
 
 class Game {
 public:
@@ -24,11 +25,15 @@ public:
 	void pause(int button);
 	void debug();
 	void graphic();
+	void audio();
+	void audioUpdate();
 	void logic();
 	void UILogic();
 	void input(SDL_Event &e, Vector2f& p_movement);
+	void checkIsGameOver();
 	void clean();
 	bool runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime);
+
 	//Destroy out of bound Projectiles
 	void destroyOutOfBound();
 	void destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt);
@@ -42,13 +47,14 @@ public:
 	void levelUpFireBall();
 	void levelUpSnowBall();
 	void levelUpWindStorm();
-
+	void restartButtonFunction();
 
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
 	InputManager inputManager;
 	SpawnManager spawnManager;
+	AudioManager audioManager;
 
 	//Prefabs
 	std::vector<GameObject*> gameObjectPrefabs;
@@ -57,6 +63,8 @@ private:
 	std::vector<Enemy*> enemyPrefabs;
 	std::vector<Bar*> barPrefabs;
 	std::vector<Wave> wavePrefabs;
+	std::vector<Mix_Chunk*> SFXPrefabs;
+	std::vector<Mix_Music*> musicPrefabs;
 
 	//In-game
 	std::vector<Projectile*> projectiles;
@@ -87,16 +95,10 @@ private:
 	Uint32 lastPause = 0;
 	Uint32 timePause = 0;
 
-	int slimeSpawnCount = 0;
-	int orcSpawnCount = 0;
-	int iceSlimeSpawnCount = 0;
-	int fireSlimeSpawnCount = 0;
-	int windSlimeSpawnCount = 0;
-	int mikuSpawnCount = 0;
-
-	int gameHP;
+	int gameHp = 10;
 	int gameScore;
 
 	bool isGamePause = false;
-	bool isGameOver = true;
+	bool isGameOver = false;
+	bool isGameStart = true;
 };

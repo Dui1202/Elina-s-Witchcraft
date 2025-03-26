@@ -31,8 +31,6 @@ void emptyFunction() {
 	std::cout << "lmao" << std::endl;
 }
 
-
-
 //Initalize window, resourceManager,
 Game::Game()
 	:window("Gametest", 1280, 720), resourceManager(window.getRenderer()), player(nullptr){}
@@ -67,6 +65,21 @@ void Game::start() {
 	};
 	resourceManager.loadTexture(allTexturePaths);
 
+	std::vector<std::string> allSFXPaths = {
+		"./asset/SFX/Button SFX.wav",
+		"./asset/SFX/Fireball SFX.wav",
+		"./asset/SFX/Snowball SFX.wav",
+		"./asset/SFX/Windstorm SFX.wav",
+		"./asset/SFX/Level up SFX.wav"
+	};
+	resourceManager.loadSFX(allSFXPaths);
+
+	std::vector<std::string> allMusicPaths = {
+		"./asset/SFX/Gameplay Music.mp3",
+		"./asset/SFX/Game over Music.mp3"
+	};
+	resourceManager.loadMusic(allMusicPaths);
+
 	//Set textures
 	SDL_Texture* playerTexture = resourceManager.getTexture(allTexturePaths[0]);
 	SDL_Texture* grassTexture = resourceManager.getTexture(allTexturePaths[1]);
@@ -92,7 +105,24 @@ void Game::start() {
 	SDL_Texture* fireSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[21]);
 	SDL_Texture* iceSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[22]);
 
+	{
+		int index = 0;
+		for (std::string& path : allSFXPaths) {
+			SFXPrefabs.push_back(resourceManager.getSFX(allSFXPaths[index]));
+			index++;
+		}
+	}
 
+	{
+		int index = 0;
+		for (std::string& path : allMusicPaths) {
+			musicPrefabs.push_back(resourceManager.getMusic(allMusicPaths[index]));
+			index++;
+		}
+	}
+
+	Mix_VolumeMusic(96);
+	Mix_VolumeChunk(SFXPrefabs[BUTTON_SFX], 96);
 
 
 	//Set some frames
@@ -116,6 +146,7 @@ void Game::start() {
 	Vector2f settingBtnPosition(1100, 10);
 	Vector2f shopBtnPosition(50, 10);
 	Vector2f coinTextPosition(50, 80);
+	Vector2f gameHpTextPosition(50, 680);
 
 	//Set some in-game varibles
 	playerSpeed = 5;
@@ -125,11 +156,11 @@ void Game::start() {
 
 	float snowBallSpeed = 10;
 	float snowBallStr = 2;
-	Uint32 snowBallCoolDown = 2000;
+	Uint32 snowBallCoolDown = 1000;
 
 	float windStormSpeed = 6;
 	float windStormStr = 1;
-	Uint32 windStormCoolDown = 1000;
+	Uint32 windStormCoolDown = 10000;
 
 	float slimeSpeed = 1.5;
 	float slimeHp = 10;
@@ -200,6 +231,7 @@ void Game::start() {
 	Text* levelUpFireBallText = new Text("Level up Fireball!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* levelUpSnowBallText = new Text("Level up Snowball!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* levelUpWindStormText = new Text("Level up Windstorm!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* gameHpText = new Text("Home HP: ", gameHpTextPosition, black, window.getRenderer(), normal8BitFont);
 
 
 	//Set button
@@ -322,6 +354,7 @@ void Game::start() {
 	texts.push_back(levelUpFireBallText);
 	texts.push_back(levelUpSnowBallText);
 	texts.push_back(levelUpWindStormText);
+	texts.push_back(gameHpText);
 
 	buttons.push_back(settingsButton);
 	buttons.push_back(menuButton);
@@ -348,6 +381,7 @@ void Game::start() {
 
 	spawnManager.setWavePrefabs(wavePrefabs);
 	spawnManager.setActiveEnemies(&enemies);
+	audioManager.setSounds(&musicPrefabs, &SFXPrefabs);
 }
 
 void Game::debug() {
@@ -367,6 +401,11 @@ void Game::logic() {
 		bool isDestroy = false;
 		for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ++eneIt) {
 			if ((*pjIt)->getCollider().checkCollide((*eneIt)->getCollider())) {
+				if (!*pjIt) {
+					std::cerr << "Error: null projectile in logic loop!" << std::endl;
+					continue;
+				}
+
 				if ((*pjIt)->getName() == "fireBall") {
 					//std::cout << "Collide with enemy!" << std::endl;
 
@@ -447,6 +486,19 @@ void Game::logic() {
 
 }
 
+void Game::audio() {
+	audioManager.start();
+}
+
+void Game::audioUpdate() {
+	if (isGamePause) {
+		audioManager.setMusicVolume(16);
+	}
+	else {
+		audioManager.setMusicVolume(96);
+	}
+}
+
 void Game::graphic() {
 
 	Animation* backgroundAnimation = animationPrefabs[8];
@@ -484,12 +536,15 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 			player->shootProjectile(projectiles, animationProjectiles);
 			player->getCurrentProjectile()->setLastShot(currentTime - timePause);
 			if (player->getCurrentProjectile()->getName() == "fireBall") {
+				audioManager.playFireBallSFX();
 				skillHolders[FIREBALL_SKILLHOLDER]->getBar()->reset();
 			}
 			else if (player->getCurrentProjectile()->getName() == "snowBall") {
+				audioManager.playSnowBallSFX();
 				skillHolders[SNOWBALL_SKILLHOLDER]->getBar()->reset();
 			}
 			else if (player->getCurrentProjectile()->getName() == "windStorm") {
+				audioManager.playWindStormSFX();
 				skillHolders[WINDSTORM_SKILLHOLDER]->getBar()->reset();
 			}
 		}
@@ -501,7 +556,7 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 }
 //Main game loop
 void Game::update() {
-
+	audio();
 	graphic();
 
 	//Set flag for the game loop
@@ -525,7 +580,7 @@ void Game::update() {
 
 	//The main game loop
 	while (isGameRunning) {
-
+		
 		currentTime = SDL_GetTicks();
 		float frameTime = currentTime - lastTime;
 		lastTime = currentTime;
@@ -544,6 +599,7 @@ void Game::update() {
 			btn->handleInput(inputManager);
 			btn->update();
 		}
+		audioUpdate();
 		updateCoin();
 		inputManager.update();
 		player->changeProjectile(inputManager);
@@ -612,6 +668,7 @@ void Game::update() {
 
 
 		window.renderText(texts[COIN_TEXT]);
+		window.renderText(texts[GAMEHP_TEXT]);
 
 		for (auto& skillHolder : skillHolders) {
 			window.renderUI(skillHolder);
@@ -631,7 +688,7 @@ void Game::update() {
 		}
 
 		
-
+		checkIsGameOver();
 		debug();
 		
 
@@ -654,7 +711,7 @@ void Game::update() {
 void Game::clean() {
 
 	//Destroy all textures
-	resourceManager.clearTexture();
+	resourceManager.clear();
 
 	//Destroy window and renderer
 	window.cleanUp();
@@ -780,6 +837,7 @@ void Game::destroyOutOfBound() {
 			delete *eneIt;
 			eneIt = enemies.erase(eneIt);
 			std::cout << "Enemy destroyed!" << std::endl;
+			gameHp--;
 		}
 		else {
 			++eneIt;
@@ -827,6 +885,7 @@ void Game::settingsButtonFunction() {
 		modals[SETTING_MODAL]->open();
 	}
 	pause(SHOP_BUTTON);
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
 void Game::shopButtonFunction() {
@@ -837,6 +896,7 @@ void Game::shopButtonFunction() {
 		modals[SHOP_MODAL]->open();
 	}
 	pause(SETTING_BUTTON);
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
 void Game::levelUpFireBall() {
@@ -845,6 +905,7 @@ void Game::levelUpFireBall() {
 		skillHolders[FIREBALL_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[0]->getCoolDown());
 		player->setCoin(player->getCoin() - projectilePrefabs[0]->getUpgradeCoin());
 		projectilePrefabs[0]->levelUpUpgradeCoin();
+		Mix_PlayChannel(-1, SFXPrefabs[LEVELUP_SFX], 0);
 	}
 }
 
@@ -854,6 +915,7 @@ void Game::levelUpSnowBall() {
 		skillHolders[SNOWBALL_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[1]->getCoolDown());
 		player->setCoin(player->getCoin() - projectilePrefabs[1]->getUpgradeCoin());
 		projectilePrefabs[1]->levelUpUpgradeCoin();
+		Mix_PlayChannel(-1, SFXPrefabs[LEVELUP_SFX], 0);
 	}
 }
 
@@ -863,7 +925,7 @@ void Game::levelUpWindStorm() {
 		skillHolders[WINDSTORM_SKILLHOLDER]->getBar()->setNewCoolDown(projectilePrefabs[2]->getCoolDown());
 		player->setCoin(player->getCoin() - projectilePrefabs[2]->getUpgradeCoin());
 		projectilePrefabs[2]->levelUpUpgradeCoin();
-
+		Mix_PlayChannel(-1, SFXPrefabs[LEVELUP_SFX], 0);
 	}
 }
 
@@ -940,6 +1002,8 @@ void Game::UILogic() {
 		}
 		skillHolders[WINDSTORM_SKILLHOLDER]->setIsActive(true);
 	}
+
+	texts[GAMEHP_TEXT]->setText("HOME HP: " + std::to_string(gameHp));
 }
 
 void Game::setPlayerInBound() {
@@ -951,3 +1015,12 @@ void Game::setPlayerInBound() {
 	}
 }
 
+void Game::checkIsGameOver() {
+	if (gameHp <= 0) {
+		isGameOver = true;
+		std::cout << "Game Over!" << std::endl;
+	}
+	else {
+		isGameOver = false;
+	}
+}

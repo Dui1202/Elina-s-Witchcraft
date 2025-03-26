@@ -52,7 +52,9 @@ Enemy::~Enemy() {
 
 void Enemy::setPos(const Vector2f& p_pos) {
 	pos = p_pos;
-	hpBar->setPos(p_pos + Vector2f(w / 2 - hpBar->getWidth() / 2, 0));
+	if (hpBar) {
+		hpBar->setPos(p_pos + Vector2f(w / 2 - hpBar->getWidth() / 2, 0));
+	}
 	
 }
 
