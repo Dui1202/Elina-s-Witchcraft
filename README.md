@@ -8,7 +8,7 @@ Ngưỡng điểm mong muốn : 10!
 ---
 ## 🏆 Tại sao Game này lại xứng đáng 10/10?
 
-1. Các tính năng cốt lõi (Core Gameplay):
+### 1. 🕹️ Các tính năng cốt lõi (Core Gameplay):
 
 - Bắn đạn với cooldown, sát thương, hiệu ứng riêng biệt:
 
@@ -25,11 +25,12 @@ Ngưỡng điểm mong muốn : 10!
 
   - Kiểm tra va chạm giữa đạn và kẻ địch bằng AABB Collision Detection​.
   - Va chạm dẫn đến giảm HP của kẻ thù và hủy đạn.
+ 
 - Kiểm tra Gameover:
 
   - Khi kẻ thù vượt qua nhân vật, HP giảm và sẽ hiện màn hình Gameover khi HP giảm đến 0.
   
-2. Giao diện và trải nghiệm người dùng:
+### 2. 🎨 Giao diện và trải nghiệm người dùng:
 
 - UI đầy đủ:
 
@@ -53,7 +54,7 @@ Ngưỡng điểm mong muốn : 10!
     - Nhạc thay đổi theo trạng thái trò chơi: Menu, Gameplay, và Game Over​.
     - Giảm âm lượng khi trong trạng thái Pause game.
 
-3. Quản lí tài nguyên Game:
+### 3. ⚡ Quản lí tài nguyên Game:
 - Quản lí tài nguyên:
 
   - Tất cả texture, âm thanh và phông chữ đều được load sẵn và quản lý bởi ResourceManager​.
@@ -64,10 +65,48 @@ Ngưỡng điểm mong muốn : 10!
   
   - Toàn bộ các tài nguyên đều được cho vào các vector, vậy nên khi thoát Game, các tài nguyên đều chắc chắn sẽ được giải phóng đúng cách để tránh memory leak.
  
-4. Code quality:
+### 4. 📚 Code quality:
 - Code sạch và tách biệt module.
 - Dễ dàng mở rộng và thêm các tính năng mới.
 
+## ⭐ Tóm tắt các điểm nổi bật:
 
+-  Game đã hoàn thiện tất cả các yêu cầu cơ bản và nâng cao cho một game Survival Shooter.
+-  Các Animation đều được vẽ bằng tay để có thể hoạt động trơn tru với module Animation trong code.
+-  Có đầy đủ các UI cần thiết cho một con game hoàn chỉnh.
+-  Sử dụng hệ thống Prefab để có thể tái sử dụng các Gameobject, tối ưu hiệu suất game.
+
+## Checklist
+1. [x] Dùng các lệnh vẽ hình
+2. [x] Texture
+3. [x] Background
+4. [x] Event bàn phím
+5. [x] Event chuột
+6. [x] Animation (hoạt hình)
+7. [x] Xử lý va chạm
+8. [ ] Score (có tính điểm)
+9. [ ] Lưu bảng điểm
+10. [x] Sound
+11. [ ] Sound on off
+12. [x] Background music
+13. [x] Font
+14. [x] Menu
+15. [x] Pause/Resume
+16. [x] Status bar / lives (mạng/máu...)
+
+## Các nguồn tham khảo:
+### 1. Các nguồn tự học:
+- [Lazy Foo](https://lazyfoo.net/tutorials/SDL/index.php).
+- [Youtube - codergopher](https://www.youtube.com/watch?v=KsG6dJlLBDw&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=1).
+- [Let's Make Games](https://www.youtube.com/watch?v=QQzAHcojEKg&list=PLhfAbcv9cehhkG7ZQK0nfIGJC_C-wSLrx&index=1).
+
+### 2. Các nguồn lấy file âm thanh:
+- [Menu Music - Blue Archive OST 25. Future Bossa](https://www.youtube.com/watch?v=kiwWb_1KFKs).
+- [Gameplay Music - [Zachz Winner] doodle (NES 8-bit remix)](https://www.youtube.com/watch?v=HoHGQgSYiWo).
+- [Gameover Music - Undertale OST: 011 - Determination](https://www.youtube.com/watch?v=W1i4mTyidOc).
+- [Button SFX - 90s Game UI 6, Levelup SFX - Cute Level Up 3)](https://pixabay.com/sound-effects/search/button/?order=ec).
+- [Fireball SFX](https://www.youtube.com/watch?v=xX0TbeEY_RM).
+- [Snowball SFX](https://www.youtube.com/watch?v=JCu7q5gZaeA).
+- [Windstorm SFX - Wind blowing sfx](https://pixabay.com/sound-effects/search/wind/).
 
 
