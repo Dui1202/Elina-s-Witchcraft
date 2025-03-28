@@ -94,11 +94,17 @@ Ngưỡng điểm mong muốn : 10!
 15. [x] Pause/Resume
 16. [x] Status bar / lives (mạng/máu...)
 
+## Những phần code được tham khảo:
+- [Hàm RenderWindow](https://www.youtube.com/watch?v=pjLpipQRMIw&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=3).
+- [Hàm Entity](https://www.youtube.com/watch?v=WK_ojz7TOdM&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=6).
+- [Hàm va chạm](https://lazyfoo.net/tutorials/SDL/27_collision_detection/index.php).
+- [Hàm Vector2f](https://www.youtube.com/watch?v=ksXY1mHHi7Y&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=9).
+
 ## Các nguồn tham khảo:
 ### 1. Các nguồn tự học:
 - [Lazy Foo](https://lazyfoo.net/tutorials/SDL/index.php).
 - [Youtube - codergopher](https://www.youtube.com/watch?v=KsG6dJlLBDw&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=1).
-- [Let's Make Games](https://www.youtube.com/watch?v=QQzAHcojEKg&list=PLhfAbcv9cehhkG7ZQK0nfIGJC_C-wSLrx&index=1).
+- [Youtube - Let's Make Games](https://www.youtube.com/watch?v=QQzAHcojEKg&list=PLhfAbcv9cehhkG7ZQK0nfIGJC_C-wSLrx&index=1).
 
 ### 2. Các nguồn lấy file âm thanh:
 - [Menu Music - Blue Archive OST 25. Future Bossa](https://www.youtube.com/watch?v=kiwWb_1KFKs).
