@@ -13,7 +13,7 @@ Ngưỡng điểm mong muốn : 10!
 - Bắn đạn với cooldown, sát thương, hiệu ứng riêng biệt:
 
   - Đạn có 3 loại: Fireball (Sát thương lớn), Snowball (Làm chậm kẻ địch), và Windstorm (lôi kéo kẻ địch)​
-  - Mỗi loại đạn đều có cooldown và có thể được nâng cấp để tăng sức mạnh và giảm thời gian hồi chiêu.
+  - Mỗi loại đạn đều có cooldown riêng và có thể được nâng cấp để tăng sức mạnh và giảm thời gian hồi chiêu.
   
 - Hệ thống spawn kẻ địch theo wave:
 
