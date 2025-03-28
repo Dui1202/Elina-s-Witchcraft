@@ -100,6 +100,10 @@ Ngưỡng điểm mong muốn : 10!
 - [Hàm va chạm](https://lazyfoo.net/tutorials/SDL/27_collision_detection/index.php).
 - [Hàm Vector2f](https://www.youtube.com/watch?v=ksXY1mHHi7Y&list=PL2RPjWnJduNmXHRYwdtublIPdlqocBoLS&index=9).
 
+## Mức độ sử dụng AI:
+
+- AI chủ yếu được sử dụng để tìm hiểu thêm về các hàm trong SDL2 và là phương án cuối cùng để Debug khi gặp Bug khó nhằn.
+
 ## Các nguồn tham khảo:
 ### 1. Các nguồn tự học:
 - [Lazy Foo](https://lazyfoo.net/tutorials/SDL/index.php).
