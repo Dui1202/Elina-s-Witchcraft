@@ -19,6 +19,7 @@ public:
 	bool isStart = false;
 	bool isHold = false;
 	bool isRelease = false;
+	Uint32 releaseTime = 0;
 };
 
 class InputManager {

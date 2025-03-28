@@ -22,12 +22,14 @@ public:
 	Game();
 	void start();
 	void update();
-	void pause(int button);
+	void pause();
 	void debug();
 	void graphic();
 	void audio();
 	void audioUpdate();
 	void logic();
+	void renderGame(Vector2f& p_movement);
+	void renderMenu();
 	void UILogic();
 	void input(SDL_Event &e, Vector2f& p_movement);
 	void checkIsGameOver();
@@ -47,8 +49,19 @@ public:
 	void levelUpFireBall();
 	void levelUpSnowBall();
 	void levelUpWindStorm();
-	void restartButtonFunction();
+	void restartGameButtonFunction();
+	void startGameButtonFunction();
+	void quitGameButtonFunction();
+	void menuButtonFunction();
 
+	bool isGamePause = false;
+	bool isGameOver = false;
+	bool isGameStart = true;
+	bool isMenuOpen = true;
+
+	bool hasMenuMusicPlay = false;
+	bool hasGameplayMusicPlay = false;
+	bool hasGameoverMusicPlay = false;
 private:
 	RenderWindow window;
 	ResourceManager resourceManager;
@@ -70,14 +83,20 @@ private:
 	std::vector<Projectile*> projectiles;
 	std::vector<GameObject> gameObjectGrass;
 	std::vector<Enemy*> enemies;
-	std::vector<Text*> texts;
+	std::vector<Text*> textsInGame;
+	std::vector<Text*> textsInMenu;
+	std::vector<Text*> textsInGameoverScene;
 	std::vector<Button*> buttons;
 
 	std::vector<Button*> buttonsInSettingModal;
 	std::vector<Button*> buttonsInMenu;
 	std::vector<Button*> buttonsInShopModal;
+	std::vector<Button*> buttonsInGame; 
+	std::vector<Button*> buttonsInGameoverScene;
 
 	std::vector<Modal*> modals;
+	std::vector<Modal*> modalsInMenu;
+	std::vector<Modal*> modalsInGame;
 	std::vector<Bar*> bars;
 	std::vector<SkillHolder*> skillHolders;
 
@@ -95,10 +114,7 @@ private:
 	Uint32 lastPause = 0;
 	Uint32 timePause = 0;
 
-	int gameHp = 10;
-	int gameScore;
-
-	bool isGamePause = false;
-	bool isGameOver = false;
-	bool isGameStart = true;
+	int gameHp = 1;
+	int gameScore = 0;
+	int numberOfWave = 1;
 };

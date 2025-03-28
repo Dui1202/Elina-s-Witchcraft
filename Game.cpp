@@ -61,7 +61,8 @@ void Game::start() {
 		"./asset/golem_move_sprite.png",
 		"./asset/miku_move_sprite.png",
 		"./asset/fire_slime_move_sprite.png",
-		"./asset/ice_slime_move_sprite.png"
+		"./asset/ice_slime_move_sprite.png",
+		"./asset/menu_background.png"
 	};
 	resourceManager.loadTexture(allTexturePaths);
 
@@ -76,7 +77,9 @@ void Game::start() {
 
 	std::vector<std::string> allMusicPaths = {
 		"./asset/SFX/Gameplay Music.mp3",
-		"./asset/SFX/Game over Music.mp3"
+		"./asset/SFX/Game over Music.mp3",
+		"./asset/SFX/Menu Music.mp3"
+
 	};
 	resourceManager.loadMusic(allMusicPaths);
 
@@ -104,6 +107,7 @@ void Game::start() {
 	SDL_Texture* mikuMoveTexture = resourceManager.getTexture(allTexturePaths[20]);
 	SDL_Texture* fireSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[21]);
 	SDL_Texture* iceSlimeMoveTexture = resourceManager.getTexture(allTexturePaths[22]);
+	SDL_Texture* menuBackgroundTexture = resourceManager.getTexture(allTexturePaths[23]);
 
 	{
 		int index = 0;
@@ -121,8 +125,8 @@ void Game::start() {
 		}
 	}
 
-	Mix_VolumeMusic(96);
-	Mix_VolumeChunk(SFXPrefabs[BUTTON_SFX], 96);
+	Mix_VolumeMusic(72);
+	Mix_VolumeChunk(SFXPrefabs[BUTTON_SFX], 72);
 
 
 	//Set some frames
@@ -141,6 +145,7 @@ void Game::start() {
 	SDL_Rect hoverLongButtonFrame = { 0, 64, 512, 64 };
 	SDL_Rect activeLongButtonFrame = { 0, 128, 512, 64 };
 	SDL_Rect indicatorFrame = { 0, 0, 100, 100 };
+	SDL_Rect menuBackgroundFrame = { 0 , 0, 1280, 720 };
 
 	//Set some default positions
 	Vector2f settingBtnPosition(1100, 10);
@@ -212,14 +217,46 @@ void Game::start() {
 	Animation* fireSlimeAnimation = new Animation(Vector2f(0, 0), fireSlimeMoveTexture, 2, defaultFrame, 200, renderScale64);
 	Animation* iceSlimeAnimation = new Animation(Vector2f(0, 0), iceSlimeMoveTexture, 2, defaultFrame, 400, renderScale64);
 
+	Animation* menuBackgroundAnimation = new Animation(Vector2f(0, 0), menuBackgroundTexture, 1, menuBackgroundFrame, 100);
+
+	animationPrefabs.push_back(playerIdleAnimation);
+	animationPrefabs.push_back(slimeAnimation);
+	animationPrefabs.push_back(grassAnimation);
+	animationPrefabs.push_back(fireBallAnimation);
+	animationPrefabs.push_back(buttonNormalAnimation);
+	animationPrefabs.push_back(buttonHoverAnimation);
+	animationPrefabs.push_back(buttonActiveAnimation);
+	animationPrefabs.push_back(modalAnimation);
+	animationPrefabs.push_back(backgroundAnimation);
+	animationPrefabs.push_back(snowBallAnimation);
+	animationPrefabs.push_back(windStormAnimation);
+	animationPrefabs.push_back(fireBallSkillHolderAnimation);
+	animationPrefabs.push_back(snowBallSkillHolderAnimation);
+	animationPrefabs.push_back(windStormSkillHolderAnimation);
+	animationPrefabs.push_back(fireBallSkillHolderCoolDownAnimation);
+	animationPrefabs.push_back(snowBallSkillHolderCoolDownAnimation);
+	animationPrefabs.push_back(windStormSkillHolderCoolDownAnimation);
+	animationPrefabs.push_back(outerBarAnimation);
+	animationPrefabs.push_back(innerHpBarAnimation);
+	animationPrefabs.push_back(innerCoolDownBarAnimation);
+	animationPrefabs.push_back(longButtonNormalAnimation);
+	animationPrefabs.push_back(longButtonHoverAnimation);
+	animationPrefabs.push_back(longButtonActiveAnimation);
+	animationPrefabs.push_back(indicatorAnimation);
+	animationPrefabs.push_back(golemMoveAnimation);
+	animationPrefabs.push_back(mikuMoveAnimation);
+	animationPrefabs.push_back(fireSlimeAnimation);
+	animationPrefabs.push_back(iceSlimeAnimation);
+	animationPrefabs.push_back(menuBackgroundAnimation);
 
 	//Set text
 	TTF_Font* normal8BitFont = TTF_OpenFont("./asset/font/VT323/VT323-Regular.ttf", 24);
+	TTF_Font* large8BitFont = TTF_OpenFont("./asset/font/VT323/VT323-Regular.ttf", 96);
 	TTF_Font* normalFont = TTF_OpenFont("./asset/font/Roboto/font.ttf", 20);
 	TTF_Font* boldFont = TTF_OpenFont("./asset/font/Roboto/static/Roboto_Condensed-SemiBold.ttf", 32);
 	SDL_Color black = { 0, 0, 0, 255 };
 	SDL_Color white = { 255, 255, 255, 255 };
-
+	SDL_Color red = { 255, 0, 0, 255 };
 	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normal8BitFont);
 	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
@@ -232,26 +269,46 @@ void Game::start() {
 	Text* levelUpSnowBallText = new Text("Level up Snowball!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* levelUpWindStormText = new Text("Level up Windstorm!", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* gameHpText = new Text("Home HP: ", gameHpTextPosition, black, window.getRenderer(), normal8BitFont);
-
+	Text* menuTitleText = new Text("Elina's Witchcraft", Vector2f(0, 0), white, window.getRenderer(), large8BitFont);
+	Text* gameOverText = new Text("GAME OVER!", Vector2f(0, 0), red, window.getRenderer(), large8BitFont);
+	Text* restartText = new Text("Restart", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
-	Button* menuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, emptyFunction);
+	Button* menuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
 	Button* resumeButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, resumeText, animationUIs, emptyFunction);
-	Button* playButton = new Button(Vector2f(50, 50), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, emptyFunction);
-	Button* quitButton = new Button(Vector2f(100, 100), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, emptyFunction);
+	Button* playButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, std::bind(&Game::startGameButtonFunction, this));
+	Button* quitButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, std::bind(&Game::quitGameButtonFunction, this));
 	Button* shopButton = new Button(shopBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, shopText, animationUIs, std::bind(&Game::shopButtonFunction, this));
 	Button* LevelUpFireBallButton = new Button(Vector2f(0 ,0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpFireBallText, animationUIs, std::bind(&Game::levelUpFireBall, this));
 	Button* LevelUpSnowBallButton = new Button(Vector2f(0, 0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpSnowBallText, animationUIs, std::bind(&Game::levelUpSnowBall, this));
 	Button* LevelUpWindStormButton = new Button(Vector2f(0, 0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpWindStormText, animationUIs, std::bind(&Game::levelUpWindStorm, this));
-
+	Button* restartButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, restartText, animationUIs, std::bind(&Game::restartGameButtonFunction ,this));
+	Button* gameOverMenuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
 	//Set of buttons
+	buttonsInMenu.push_back(playButton);
+	buttonsInMenu.push_back(quitButton);
+
 	buttonsInSettingModal.push_back(menuButton);
 	buttonsInSettingModal.push_back(resumeButton);
 
 	buttonsInShopModal.push_back(LevelUpFireBallButton);
 	buttonsInShopModal.push_back(LevelUpSnowBallButton);
 	buttonsInShopModal.push_back(LevelUpWindStormButton);
+
+	buttonsInGame.push_back(settingsButton);
+	buttonsInGame.push_back(shopButton);
+	buttonsInGame.push_back(menuButton);
+	buttonsInGame.push_back(resumeButton);
+	buttonsInGame.push_back(LevelUpFireBallButton);
+	buttonsInGame.push_back(LevelUpSnowBallButton);
+	buttonsInGame.push_back(LevelUpWindStormButton);
+
+	buttonsInGameoverScene.push_back(gameOverMenuButton);
+	buttonsInGameoverScene.push_back(restartButton);
+	gameOverMenuButton->setPos(Vector2f(window.getWidth() / 2, 200) - Vector2f(gameOverMenuButton->getWidth() / 2, 0));
+	restartButton->setPos(Vector2f(window.getWidth() / 2, 400) - Vector2f(restartButton->getWidth() / 2, 0));
+
 
 
 	//Set Bar
@@ -267,8 +324,14 @@ void Game::start() {
 	//buttonsInMenu.push_back(quitButton);
 
 	//Set modal
+	Modal* menuModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInMenu, settingsModalText, animationUIs);
 	Modal* settingModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInSettingModal, settingsModalText, animationUIs);
 	Modal* shopModal = new Modal(Vector2f(0, 0), modalAnimation, buttonsInShopModal, settingsModalText, animationUIs);
+
+	modalsInGame.push_back(settingModal);
+	modalsInGame.push_back(shopModal);
+	modalsInMenu.push_back(menuModal);
+
 
 	//Set Skill Holders
 	SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(200, 10), fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
@@ -296,13 +359,14 @@ void Game::start() {
 	//Set positions
 	settingModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(settingModal->getWidth() / 2, settingModal->getHeight() / 2));
 	shopModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(shopModal->getWidth() / 2, shopModal->getHeight() / 2));
+	menuModal->setPos(Vector2f(window.getWidth() / 2, 300) - Vector2f(menuModal->getWidth() / 2, 0));
 
 	//Prefab waves
 
 		//Repeating wave
 	Wave wavePrefab1(10, 0, 0, 10, 10);
 	Wave wavePrefab2(0, 20, 5, 0, 0);
-	Wave wavePrefab3(5, 5, 5, 5, 5);
+	Wave wavePrefab3(4, 4, 4, 4, 4);
 	Wave wavePrefab4(15, 0, 10, 1, 0);
 	Wave wavePrefab5(0, 0, 0, 15, 15);
 
@@ -313,29 +377,9 @@ void Game::start() {
 	wavePrefabs.push_back(wavePrefab5);
 
 	//Push all animations for easier deconstruction
-	animationPrefabs.push_back(playerIdleAnimation);
-	animationPrefabs.push_back(fireBallAnimation);
-	animationPrefabs.push_back(grassAnimation);
-	animationPrefabs.push_back(slimeAnimation);
-	animationPrefabs.push_back(buttonNormalAnimation);
-	animationPrefabs.push_back(buttonActiveAnimation);
-	animationPrefabs.push_back(buttonHoverAnimation);
-	animationPrefabs.push_back(modalAnimation);
-	animationPrefabs.push_back(backgroundAnimation);
-	animationPrefabs.push_back(snowBallAnimation);
-	animationPrefabs.push_back(windStormAnimation);
-	animationPrefabs.push_back(fireBallSkillHolderAnimation);
-	animationPrefabs.push_back(snowBallSkillHolderAnimation);
-	animationPrefabs.push_back(windStormSkillHolderAnimation);
-	animationPrefabs.push_back(outerBarAnimation);
-	animationPrefabs.push_back(innerHpBarAnimation);
-	animationPrefabs.push_back(innerCoolDownBarAnimation);
-
 	projectilePrefabs.push_back(fireball);
 	projectilePrefabs.push_back(snowBall);
 	projectilePrefabs.push_back(windStorm);
-
-
 
 	//Set player
 	player = new Player(Vector2f(0, 362), nullptr, projectilePrefabs);
@@ -343,24 +387,32 @@ void Game::start() {
 	player->setAnimation(playerIdleAnimation);
 
 
-	texts.push_back(settingsText);
-	texts.push_back(menuText);
-	texts.push_back(resumeText);
-	texts.push_back(playText);
-	texts.push_back(quitText);
-	texts.push_back(settingsModalText);
-	texts.push_back(shopText);
-	texts.push_back(coinText);
-	texts.push_back(levelUpFireBallText);
-	texts.push_back(levelUpSnowBallText);
-	texts.push_back(levelUpWindStormText);
-	texts.push_back(gameHpText);
+	textsInGame.push_back(settingsText);
+	textsInGame.push_back(menuText);
+	textsInGame.push_back(resumeText);
+	textsInGame.push_back(playText);
+	textsInGame.push_back(quitText);
+	textsInGame.push_back(settingsModalText);
+	textsInGame.push_back(shopText);
+	textsInGame.push_back(coinText);
+	textsInGame.push_back(levelUpFireBallText);
+	textsInGame.push_back(levelUpSnowBallText);
+	textsInGame.push_back(levelUpWindStormText);
+	textsInGame.push_back(gameHpText);
+	textsInGame.push_back(gameOverText);
+
+	textsInMenu.push_back(menuTitleText);
+
+	textsInGameoverScene.push_back(gameOverText);
+
+	menuTitleText->setPos(Vector2f(window.getWidth() / 2, 50) - Vector2f(menuTitleText->getWidth() / 2, 0));
+	gameOverText->setPos(Vector2f(window.getWidth() / 2, 50) - Vector2f(gameOverText->getWidth() / 2, 0));
 
 	buttons.push_back(settingsButton);
 	buttons.push_back(menuButton);
 	buttons.push_back(resumeButton);
-	//buttons.push_back(playButton);
-	//buttons.push_back(quitButton);
+	buttons.push_back(playButton);
+	buttons.push_back(quitButton);
 	buttons.push_back(shopButton);
 	buttons.push_back(LevelUpFireBallButton);
 	buttons.push_back(LevelUpSnowBallButton);
@@ -368,6 +420,7 @@ void Game::start() {
 
 	modals.push_back(settingModal);
 	modals.push_back(shopModal);
+	modals.push_back(menuModal);
 
 	skillHolders.push_back(fireBallSkillHolder);
 	skillHolders.push_back(snowBallSkillHolder);
@@ -495,8 +548,35 @@ void Game::audioUpdate() {
 		audioManager.setMusicVolume(16);
 	}
 	else {
-		audioManager.setMusicVolume(96);
+		audioManager.setMusicVolume(72);
 	}
+
+	if (isMenuOpen) {
+		if (!hasMenuMusicPlay) {
+			Mix_PlayMusic(musicPrefabs[MENU_MUSIC], -1);
+			hasMenuMusicPlay = true;
+			hasGameoverMusicPlay = false;
+			hasGameplayMusicPlay = false;
+		}
+	}
+	else if (isGameStart && !isGameOver) {
+		if (!hasGameplayMusicPlay) {
+			Mix_PlayMusic(musicPrefabs[GAMEPLAY_MUSIC], -1);
+			hasGameplayMusicPlay = true;
+			hasMenuMusicPlay = false;
+			hasGameoverMusicPlay = false;
+
+		}
+	}
+	else if (isGameOver) {
+		if (!hasGameoverMusicPlay) {
+			Mix_PlayMusic(musicPrefabs[GAMEOVER_MUSIC], -1);
+			hasGameoverMusicPlay = true;
+			hasGameplayMusicPlay = false;
+			hasMenuMusicPlay = false;
+		}
+	}
+
 }
 
 void Game::graphic() {
@@ -551,12 +631,145 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 	}
 
 	p_movement.normalize();
+}
 
-	//p_movement.print();
+void Game::renderGame(Vector2f& p_movement) {
+	if (!isGameOver) {
+		for (auto& btn : buttonsInGame) {
+			btn->handleInput(inputManager);
+			btn->update();
+		}
+		updateCoin();
+		player->changeProjectile(inputManager);
+
+		if (!isGamePause) {
+			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
+				if (spawnManager.getIsWaveEnd()) {
+					int randomValue = random(0, 4);
+					spawnManager.setEnemy(wavePrefabs[randomValue]);
+				}
+				spawnManager.spawnEnemy(enemies, enemyPrefabs);
+				spawnManager.setLastTime(currentTime - timePause);
+			}
+
+			setPlayerInBound();
+			UILogic();
+			logic();
+
+			//Player movement
+			player->move(p_movement * playerSpeed);
+			animationPrefabs[PLAYER_IDLE_ANIMATION]->setPos(player->getPos());
+
+			//Fireball movement
+			for (auto& prj : projectiles) {
+				prj->update(player->getPos(), currentTime);
+			}
+
+			//Enemies movement
+			for (auto& ene : enemies) {
+				ene->update(currentTime);
+			}
+		}
+	}
+
+	
+	//Destroy out of bound projectiles
+	destroyOutOfBound();
+
+	//Draw the screen
+
+		//Render Grass
+	for (auto& grass : gameObjectGrass) {
+		window.renderAnimation(grass.getAnimation());
+	}
+
+	//Render Background
+	window.renderAnimation(animationPrefabs[BACKGROUND_ANIMATION]);
+
+	//Render Player
+	window.renderAnimation(animationPrefabs[PLAYER_IDLE_ANIMATION]);
+	animationPrefabs[PLAYER_IDLE_ANIMATION]->update(currentTime);
+
+	//Render FireBall
+	for (auto& fb : projectiles) {
+		window.renderAnimation(fb->getAnimation());
+	}
+
+	//Render Enemies
+	for (auto& sl : enemies) {
+		window.renderAnimation(sl->getAnimation());
+		window.renderUI(sl->getBar());
+	}
+
+
+	window.renderText(textsInGame[COIN_TEXT]);
+	window.renderText(textsInGame[GAMEHP_TEXT]);
+
+	for (auto& skillHolder : skillHolders) {
+		window.renderUI(skillHolder);
+	}
+
+	for (auto& modal : modalsInGame) {
+		if (modal->getIsOpen()) {
+			window.renderUI(modal);
+		}
+	}
+
+	for (auto& btn : buttonsInGame) {
+		if (btn->getVisible()) {
+			window.renderUI(btn);
+		}
+	}
+
+	if (isGameOver) {
+		
+		for (auto& btn : buttonsInGameoverScene) {
+			btn->handleInput(inputManager);
+			btn->update();
+			btn->setEnable(true);
+			btn->setVisible(true);
+
+		}
+		for (auto& btn : buttonsInGameoverScene) {
+			if (btn->getVisible()) {
+				window.renderUI(btn);
+			}
+		}
+
+		for (auto& txt : textsInGameoverScene) {
+			window.renderText(txt);
+		}
+	}
+
+	checkIsGameOver();
+	//debug();
+}
+
+void Game::renderMenu() {
+	window.renderAnimation(animationPrefabs[MENU_BACKGROUND_ANIMATION]);
+	for (auto& txt : textsInMenu) {
+		window.renderText(txt);
+	}
+
+	for (auto& btn : buttonsInMenu) {
+		btn->handleInput(inputManager);
+		btn->update();
+		btn->setVisible(true);
+	}
+
+	for (auto& modal : modalsInMenu) {
+		window.renderUI(modal);
+	}
+
+	for (auto& btn : buttonsInMenu) {
+		if (btn->getVisible()) {		
+			window.renderUI(btn);
+		}
+	}
 }
 //Main game loop
 void Game::update() {
-	audio();
+	//audio();
 	graphic();
 
 	//Set flag for the game loop
@@ -570,12 +783,6 @@ void Game::update() {
 	const float timeStep = 16.67f;
 
 	//References
-	Projectile* fireball = projectilePrefabs[0];
-	Enemy* slime = enemyPrefabs[0];
-	Animation* playerIdleAnimation = animationPrefabs[0];
-	Animation* fireBallAnimation = animationPrefabs[1];
-	Animation* backgroundAnimation = animationPrefabs[8];
-	
 	Vector2f movement(0, 0);
 
 	//The main game loop
@@ -595,102 +802,20 @@ void Game::update() {
 			}
 			accumulator -= timeStep;
 		}
-		for (auto& btn : buttons) {
-			btn->handleInput(inputManager);
-			btn->update();
-		}
-		audioUpdate();
-		updateCoin();
-		inputManager.update();
-		player->changeProjectile(inputManager);
-
-		if (!isGamePause) {
-			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
-				if (spawnManager.getIsWaveEnd()) {
-					int randomValue = random(0, 4);
-					spawnManager.setEnemy(wavePrefabs[randomValue]);
-				}
-				spawnManager.spawnEnemy(enemies, enemyPrefabs);
-				spawnManager.setLastTime(currentTime - timePause);
-			}
-			
-			setPlayerInBound();
-			UILogic();
-			logic();
-
-		//Player movement
-			player->move(movement * playerSpeed);
-			playerIdleAnimation->setPos(player->getPos());
-
-			//Fireball movement
-			for (auto& prj : projectiles) {
-			prj->update(player->getPos(), currentTime);
-		}
-
-			//Slime movement
-			for (auto& ene : enemies) {
-				ene->update(currentTime);
-			}
-		} 
-
-		//Destroy out of bound projectiles
-		destroyOutOfBound();
-
 		//Clear the screen
 		window.clear();
 
 		SDL_SetRenderDrawColor(window.getRenderer(), 0xFF, 0xFF, 0xFF, 0xFF);
 		SDL_RenderClear(window.getRenderer());
-		//Draw the screen
-		
-			//Render Grass
-		for (auto& grass : gameObjectGrass) {
-			window.renderAnimation(grass.getAnimation());
+		inputManager.update();
+		audioUpdate();
+
+		if (isMenuOpen) {
+			renderMenu();
 		}
-			
-			//Render Background
-		window.renderAnimation(backgroundAnimation);
-		
-			//Render Player
-		window.renderAnimation(playerIdleAnimation);
-		playerIdleAnimation->update(currentTime);
-
-			//Render FireBall
-		for (auto& fb : projectiles) {
-			window.renderAnimation(fb->getAnimation());
+		else {
+			renderGame(movement);
 		}
-			
-			//Render Enemies
-		for (auto& sl : enemies) {
-			window.renderAnimation(sl->getAnimation());
-			window.renderUI(sl->getBar());
-		}
-
-
-		window.renderText(texts[COIN_TEXT]);
-		window.renderText(texts[GAMEHP_TEXT]);
-
-		for (auto& skillHolder : skillHolders) {
-			window.renderUI(skillHolder);
-		}
-
-		for (auto& modal : modals) {
-			if (modal->getIsOpen()) {
-				window.renderUI(modal);
-			}
-		}
-
-		for (auto& btn : buttons) {
-			if (btn->getVisible()) {
-				window.renderUI(btn);
-			}
-			
-		}
-
-		
-		checkIsGameOver();
-		debug();
-		
 
 		//Show screen
 		window.display();
@@ -755,7 +880,7 @@ void Game::clean() {
 		delete anim;
 	}
 
-	for (Text* text : texts) {
+	for (Text* text : textsInGame) {
 		delete text;
 	}
 
@@ -884,7 +1009,14 @@ void Game::settingsButtonFunction() {
 	else {
 		modals[SETTING_MODAL]->open();
 	}
-	pause(SHOP_BUTTON);
+	pause();
+
+	if (isGamePause) {
+		buttonsInGame[SHOP_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SHOP_BUTTON]->setEnable(true);
+	}
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
@@ -895,7 +1027,14 @@ void Game::shopButtonFunction() {
 	else {
 		modals[SHOP_MODAL]->open();
 	}
-	pause(SETTING_BUTTON);
+	pause();
+
+	if (isGamePause) {
+		buttonsInGame[SETTING_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SETTING_BUTTON]->setEnable(true);
+	}
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
@@ -929,18 +1068,53 @@ void Game::levelUpWindStorm() {
 	}
 }
 
-void Game::pause(int p_button) {
+void Game::pause() {
 	if (isGamePause) {
 		isGamePause = false;
 		Uint32 resumeTime = SDL_GetTicks();
 		timePause += (resumeTime - startPause); // Accumulate pause duration
-		buttons[p_button]->setEnable(true);
 	}
 	else {
 		isGamePause = true;
 		startPause = SDL_GetTicks();
-		buttons[p_button]->setEnable(false);
 	}
+}
+
+void Game::startGameButtonFunction() {
+	std::cout << "Play button clicked!" << std::endl;
+	isMenuOpen = false;
+	isGameStart = true;
+	restartGameButtonFunction();
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
+}
+
+void Game::restartGameButtonFunction() {
+	std::cout << "Restart Button!" << std::endl;
+	isGameOver = false;
+	gameHp = 1;
+	gameScore = 0;
+	numberOfWave = 1;
+	player->setPos(Vector2f(0, 362));
+	for (auto& ene : enemies) {
+		delete ene;
+	} 
+	enemies.clear();
+	player->setCoin(0);
+	spawnManager.restart();
+}
+
+void Game::quitGameButtonFunction() {
+	SDL_Event e;
+	e.type = SDL_QUIT;
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
+	SDL_PushEvent(&e);
+}
+
+void Game::menuButtonFunction() {
+	std::cout << "Menu Button!" << std::endl;
+	isMenuOpen = true;
+	isGameStart = false;
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
 bool Game::runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime) {
@@ -949,10 +1123,10 @@ bool Game::runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime) {
 }
 
 void Game::updateCoin() {
-	texts[COIN_TEXT]->setText("Coin: " + std::to_string(player->getCoin()));
-	texts[LEVELUP_FIREBALL_TEXT]->setText("Level Up Fireball! Coin to upgrade: " + std::to_string(projectilePrefabs[0]->getUpgradeCoin()));
-	texts[LEVELUP_SNOWBALL_TEXT]->setText("Level Up Snowball! Coin to upgrade: " + std::to_string(projectilePrefabs[1]->getUpgradeCoin()));
-	texts[LEVELUP_WINDSTORM_TEXT]->setText("Level Up Windstorm! Coin to upgrade: " + std::to_string(projectilePrefabs[2]->getUpgradeCoin()));
+	textsInGame[COIN_TEXT]->setText("Coin: " + std::to_string(player->getCoin()));
+	textsInGame[LEVELUP_FIREBALL_TEXT]->setText("Level Up Fireball! Coin to upgrade: " + std::to_string(projectilePrefabs[0]->getUpgradeCoin()));
+	textsInGame[LEVELUP_SNOWBALL_TEXT]->setText("Level Up Snowball! Coin to upgrade: " + std::to_string(projectilePrefabs[1]->getUpgradeCoin()));
+	textsInGame[LEVELUP_WINDSTORM_TEXT]->setText("Level Up Windstorm! Coin to upgrade: " + std::to_string(projectilePrefabs[2]->getUpgradeCoin()));
 
 }
 
@@ -1002,8 +1176,9 @@ void Game::UILogic() {
 		}
 		skillHolders[WINDSTORM_SKILLHOLDER]->setIsActive(true);
 	}
-
-	texts[GAMEHP_TEXT]->setText("HOME HP: " + std::to_string(gameHp));
+	if (gameHp >= 0) {
+		textsInGame[GAMEHP_TEXT]->setText("HOME HP: " + std::to_string(gameHp));
+	}
 }
 
 void Game::setPlayerInBound() {
@@ -1018,7 +1193,7 @@ void Game::setPlayerInBound() {
 void Game::checkIsGameOver() {
 	if (gameHp <= 0) {
 		isGameOver = true;
-		std::cout << "Game Over!" << std::endl;
+		//std::cout << "Game Over!" << std::endl;
 	}
 	else {
 		isGameOver = false;

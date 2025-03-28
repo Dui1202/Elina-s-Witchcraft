@@ -24,6 +24,7 @@
     <ProjectGuid>{371d10d4-1d98-4e2b-9b9c-a0b603ab3a14}</ProjectGuid>
     <RootNamespace>gameTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Elina's Witchcraft</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -222,9 +222,6 @@ void Button::handleInput( InputManager& p_IM) {
 			else if (isOn()) {
 				setAnimation(hoverAnimation);
 			}
-			else if (isClick(p_IM)) {
-				onClick();
-			}
 			else {
 				setAnimation(normalAnimation);
 			}

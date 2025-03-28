@@ -23,6 +23,7 @@ public:
 	void checkIsWaveEnd();
 	bool getIsWaveEnd();
 	void setIsWaveEnd(bool p_bool);
+	void restart();
 private:
 	bool isWaveEnd = true;
 	int slimeSpawnCount = 0;

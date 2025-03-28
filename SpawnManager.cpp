@@ -25,6 +25,7 @@ Vector2f SpawnManager::randomPos() {
 void SpawnManager::setEnemy(Wave p_wave) {
     std::cout << "Set wave!" << std::endl;
     enemyCount.clear();
+    enemyQueue.clear();
 
     slimeSpawnCount = p_wave.slimeSpawnCount;
     mikuSpawnCount = p_wave.mikuSpawnCount;
@@ -103,4 +104,8 @@ bool SpawnManager::getIsWaveEnd() {
 
 void SpawnManager::setIsWaveEnd(bool p_bool) {
     isWaveEnd = p_bool;
+}
+
+void SpawnManager::restart() {
+    setIsWaveEnd(true);
 }

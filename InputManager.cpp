@@ -2,6 +2,8 @@
 #include"InputManager.h"
 #include "UI.h"
 
+const Uint32 RELEASE_DELAY = 10;
+
 KeyState:: KeyState() {
 
 }
@@ -30,11 +32,11 @@ void InputManager::handleInput(const SDL_Event& e) {
         mouseStates[e.button.button].isHold = false;
         mouseStates[e.button.button].isRelease = false;
     }
-    else if ((e.type == SDL_MOUSEBUTTONUP)) {
+    else if (e.type == SDL_MOUSEBUTTONUP) {
         mouseStates[e.button.button].isStart = false;
         mouseStates[e.button.button].isHold = false;
         mouseStates[e.button.button].isRelease = true;
-
+        mouseStates[e.button.button].releaseTime = SDL_GetTicks();
     }
 }
 
@@ -64,6 +66,7 @@ bool InputManager::isMouseRelease(Uint8 p_mouseEvent) {
 }
 
 void InputManager::update() {
+    Uint32 currentTime = SDL_GetTicks();
     for (auto& pair : keyStates) {
         if (pair.second.isStart) {
             pair.second.isHold = true;
@@ -82,8 +85,10 @@ void InputManager::update() {
         }
 
         if (pair.second.isRelease) {
-            pair.second.isRelease = false;
-            pair.second.isHold = false;
+            if (currentTime - pair.second.releaseTime >= RELEASE_DELAY) {
+                pair.second.isRelease = false;
+                pair.second.isHold = false;
+            }
         }
     }
 }
