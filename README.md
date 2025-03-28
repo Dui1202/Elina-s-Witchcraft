@@ -1,6 +1,6 @@
 # 🧙‍♀️ Elina's Witchcraft - Wave Survival Game
 
-Welcome to **Magic Shooter** — a fast-paced wave-based survival game where you play as a powerful witch defending against an endless horde of monsters! Use magic projectiles, upgrade your spells, and survive for as long as possible! 💥
+Welcome to **Elina's Witchcraft** — a fast-paced wave-based survival game where you play as a powerful witch defending against an endless horde of monsters! Use magic projectiles, upgrade your spells, and survive for as long as possible! 💥
 
 ---
 
