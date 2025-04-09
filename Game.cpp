@@ -276,7 +276,7 @@ void Game::start() {
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
 	Button* menuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
-	Button* resumeButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, resumeText, animationUIs, emptyFunction);
+	Button* resumeButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, resumeText, animationUIs, std::bind(&Game::resumeButtonFunction, this));
 	Button* playButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, playText, animationUIs, std::bind(&Game::startGameButtonFunction, this));
 	Button* quitButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, quitText, animationUIs, std::bind(&Game::quitGameButtonFunction, this));
 	Button* shopButton = new Button(shopBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, shopText, animationUIs, std::bind(&Game::shopButtonFunction, this));
@@ -634,6 +634,7 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 }
 
 void Game::renderGame(Vector2f& p_movement) {
+	UILogic();
 	if (!isGameOver) {
 		for (auto& btn : buttonsInGame) {
 			btn->handleInput(inputManager);
@@ -653,7 +654,7 @@ void Game::renderGame(Vector2f& p_movement) {
 			}
 
 			setPlayerInBound();
-			UILogic();
+			
 			logic();
 
 			//Player movement
@@ -1003,40 +1004,11 @@ void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) 
 
 void Game::settingsButtonFunction() {
 	std::cout << "Pressed settingButton!" << std::endl;
-	if (modals[SETTING_MODAL]->getIsOpen()) {
-		modals[SETTING_MODAL]->close();
-	}
-	else {
-		modals[SETTING_MODAL]->open();
-	}
-	pause();
+	openCloseSettingModal();
 
-	if (isGamePause) {
-		buttonsInGame[SHOP_BUTTON]->setEnable(false);
-	}
-	else {
-		buttonsInGame[SHOP_BUTTON]->setEnable(true);
-	}
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
-void Game::shopButtonFunction() {
-	if (modals[SHOP_MODAL]->getIsOpen()) {
-		modals[SHOP_MODAL]->close();
-	}
-	else {
-		modals[SHOP_MODAL]->open();
-	}
-	pause();
-
-	if (isGamePause) {
-		buttonsInGame[SETTING_BUTTON]->setEnable(false);
-	}
-	else {
-		buttonsInGame[SETTING_BUTTON]->setEnable(true);
-	}
-	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
-}
 
 void Game::levelUpFireBall() {
 	if (player->getCoin() >= projectilePrefabs[0]->getUpgradeCoin()) {
@@ -1080,11 +1052,34 @@ void Game::pause() {
 	}
 }
 
+void Game::shopButtonFunction() {
+	if (modals[SHOP_MODAL]->getIsOpen()) {
+		modals[SHOP_MODAL]->close();
+	}
+	else {
+		modals[SHOP_MODAL]->open();
+	}
+	pause();
+
+	if (isGamePause) {
+		buttonsInGame[SETTING_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SETTING_BUTTON]->setEnable(true);
+	}
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
+}
+
 void Game::startGameButtonFunction() {
 	std::cout << "Play button clicked!" << std::endl;
 	isMenuOpen = false;
 	isGameStart = true;
 	restartGameButtonFunction();
+	if (modals[SETTING_MODAL]->getIsOpen()) {
+		modals[SETTING_MODAL]->close();
+		pause();
+	}
+	
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
 
@@ -1114,7 +1109,66 @@ void Game::menuButtonFunction() {
 	std::cout << "Menu Button!" << std::endl;
 	isMenuOpen = true;
 	isGameStart = false;
+
+
+	openCloseSettingModal();
+
+	if (isGamePause) {
+		buttonsInGame[SHOP_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SHOP_BUTTON]->setEnable(true);
+	}
+
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
+}
+
+void Game::resumeButtonFunction() {
+	if (modals[SETTING_MODAL]->getIsOpen()) {
+		modals[SETTING_MODAL]->close();
+	}
+	else {
+		modals[SETTING_MODAL]->open();
+	}
+	pause();
+
+	if (isGamePause) {
+		buttonsInGame[SHOP_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SHOP_BUTTON]->setEnable(true);
+	}
+	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
+}
+
+void Game::openCloseSettingModal() {
+	if (modals[SETTING_MODAL]->getIsOpen()) {
+		modals[SETTING_MODAL]->close();
+	}
+	else {
+		modals[SETTING_MODAL]->open();
+	}
+	pause();
+	std::cout << isGamePause << std::endl;
+}
+
+void Game::checkIsGameOver() {
+	if (gameHp <= 0) {
+		isGameOver = true;
+		//std::cout << "Game Over!" << std::endl;
+	}
+	else {
+		isGameOver = false;
+	}
+}
+
+void Game::setPlayerInBound() {
+	if (player->getPos().y >= (720 - 120)) {
+		player->setPos(Vector2f(player->getPos().x, 720 - 120));
+	}
+	else if (player->getPos().y <= 120) {
+		player->setPos(Vector2f(player->getPos().x, 120));
+	}
 }
 
 bool Game::runCoolDown(Uint32 p_coolDown, Uint32 p_lastTime) {
@@ -1178,24 +1232,5 @@ void Game::UILogic() {
 	}
 	if (gameHp >= 0) {
 		textsInGame[GAMEHP_TEXT]->setText("HOME HP: " + std::to_string(gameHp));
-	}
-}
-
-void Game::setPlayerInBound() {
-	if (player->getPos().y >= (720 - 120)) {
-		player->setPos(Vector2f(player->getPos().x, 720 - 120));
-	}
-	else if (player->getPos().y <= 120) {
-		player->setPos(Vector2f(player->getPos().x, 120));
-	}
-}
-
-void Game::checkIsGameOver() {
-	if (gameHp <= 0) {
-		isGameOver = true;
-		//std::cout << "Game Over!" << std::endl;
-	}
-	else {
-		isGameOver = false;
 	}
 }

@@ -53,6 +53,9 @@ public:
 	void startGameButtonFunction();
 	void quitGameButtonFunction();
 	void menuButtonFunction();
+	void resumeButtonFunction();
+
+	void openCloseSettingModal();
 
 	bool isGamePause = false;
 	bool isGameOver = false;
