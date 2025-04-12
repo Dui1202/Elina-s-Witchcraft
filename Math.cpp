@@ -43,7 +43,7 @@ int random(int p_startValue, int p_endValue) {
 	int min = p_startValue;
 	int max = p_endValue;
 
-	// Initialize a random number generator
+	// Initialize a random number generator 
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> distrib(min, max);

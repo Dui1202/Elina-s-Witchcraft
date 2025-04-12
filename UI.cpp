@@ -19,9 +19,11 @@ UI::UI(Vector2f p_pos, Animation* p_animation, std::vector<Animation*> &p_animat
 	p_animationUIs.push_back(newAnimation);
 }
 
-//UI::~UI() {
-//	delete animation;
-//}
+UI::~UI() {
+	animation = nullptr;
+	std::cout << "UI destroyed!" << std::endl;
+}
+
 
 Vector2f UI::getPos() {
 	return pos;
@@ -79,6 +81,16 @@ Button::Button(Vector2f p_pos, Animation* p_normalAnimation, Animation* p_hoverA
 	p_animationUIs.push_back(newHoverAnimation);
 	p_animationUIs.push_back(newActiveAnimation);
 }
+
+Button::~Button() {
+	animation = nullptr;
+	text = nullptr;
+	hoverAnimation = nullptr;
+	normalAnimation = nullptr;
+	activeAnimation = nullptr;
+	std::cout << "Button destroyed!" << std::endl;
+}
+
 
 void Button::setPos(Vector2f p_pos) {
 	animation->setPos(p_pos);
@@ -260,12 +272,14 @@ Modal::Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*> &p_but
 	close();
 }
 
-//Modal::~Modal() {
-//	if (text) {
-//		delete text;
-//		text = nullptr;
-//	}
-//}
+Modal::~Modal() {
+	animation = nullptr;
+	text = nullptr;
+	buttons.clear();  // DO NOT delete buttons (owned by Game)
+
+	std::cout << "Modal destroyed!" << std::endl;
+}
+
 	
 void Modal::setPos(Vector2f p_pos) {
 	int i = 0;
@@ -369,17 +383,13 @@ Bar::Bar(const Bar* other)
 	animationUIs.push_back(newOuterAnimation);
 }
 
-//Bar::~Bar() {
-//	if (innerBar) {
-//		delete innerBar;
-//		innerBar = nullptr;
-//	}
-//
-//	if (outerBar) {
-//		delete outerBar;
-//		outerBar = nullptr;
-//	}
-//}
+Bar::~Bar() {
+	animation = nullptr;
+	innerBar = nullptr;
+	outerBar = nullptr;
+	std::cout << "Bar destroyed!" << std::endl;
+}
+
 
 Animation* Bar::getInnerAnimation() {
 	return innerBar;
@@ -485,6 +495,16 @@ SkillHolder::SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimatio
 	p_animationUIs.push_back(newIndicatorAnimation);
 	p_bars.push_back(newBar);
 }
+
+SkillHolder::~SkillHolder() {
+	animation = nullptr;
+	coolDownBar = nullptr;
+	activeAnimation = nullptr;
+	onCoolDownAnimation = nullptr;
+	indicator = nullptr;
+	std::cout << "SkillHolder destroyed!" << std::endl;
+}
+
 
 Bar* SkillHolder::getBar() {
 	return coolDownBar;

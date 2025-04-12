@@ -8,12 +8,11 @@ Entity::Entity(Vector2f p_vector,Animation* p_animation)
 	:pos(p_vector),animation(p_animation) {
 }
 
-//Entity::~Entity() {
-//	if (animation) {
-//		delete animation;
-//		animation = nullptr;
-//	}
-//}
+Entity::~Entity() {
+	animation = nullptr;  // Safe nulling
+
+}
+
 
 Vector2f& Entity::getPos() {
 	return pos;

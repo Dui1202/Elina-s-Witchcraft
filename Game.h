@@ -117,7 +117,7 @@ private:
 	Uint32 lastPause = 0;
 	Uint32 timePause = 0;
 
-	int gameHp = 1;
+	int gameHp = 5;
 	int gameScore = 0;
 	int numberOfWave = 1;
 };

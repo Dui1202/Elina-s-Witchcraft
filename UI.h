@@ -7,7 +7,7 @@
 class UI {
 public:
 	UI(Vector2f p_pos, Animation* p_animation, std::vector<Animation*>& p_animationUI);
-	//virtual ~UI();
+	virtual ~UI();
 	virtual Vector2f getPos();
 	virtual void setPos(Vector2f p_pos);
 	virtual Animation* getAnimation();
@@ -29,6 +29,7 @@ class Button : public UI {
 public:
 	void setPos(Vector2f p_pos) override;
 	Button(Vector2f p_pos, Animation* p_animation, Animation* p_hoverAnimation, Animation* p_activeAnimation, Text* p_text, std::vector<Animation*>& p_animateButtons, std::function<void()> p_function);
+	~Button() override;
 	bool isOnClick( InputManager& p_IM);
 	bool isOn();
 	bool isOnHold( InputManager& p_IM);
@@ -55,7 +56,7 @@ private:
 class Modal : public UI {
 public:
 	Modal(Vector2f p_pos, Animation* p_animation, std::vector<Button*>& p_buttons, Text* p_text, std::vector<Animation*>& p_animationUIs);
-	//~Modal();
+	~Modal() override;
 	void open();
 	void close();
 	bool getIsOpen();
@@ -73,7 +74,7 @@ public:
 	Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, float p_hp, std::vector<Animation*>& p_animationUI);
 	Bar(Vector2f p_pos, Animation* p_outerBar, Animation* p_innerBar, Uint32 p_coolDown, std::vector<Animation*>& p_animationUI);
 	Bar(const Bar* other);
-	//~Bar(); 
+	~Bar() override;
 	Animation* getInnerAnimation();
 	Animation* getOuterAnimation();
 	void setPos(Vector2f p_pos) override;
@@ -104,6 +105,7 @@ private:
 class SkillHolder : public UI {
 public: 
 	SkillHolder(Vector2f p_pos, Bar* p_bar, Animation* p_activeAnimation, Animation* p_onCoolDownAnimation, Animation* p_indicator, std::vector<Animation*>& p_animationUIs, std::vector<Bar*>& p_bars);
+	~SkillHolder() override;
 	Bar* getBar();
 	void switchOnCoolDownAnimation();
 	void switchActiveAnimation();

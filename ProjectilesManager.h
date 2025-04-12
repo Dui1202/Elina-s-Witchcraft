@@ -9,6 +9,7 @@ class Projectile : public GameObject {
 public:
 	Projectile();
 	Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, float p_speed,float p_str, Uint32 p_coolDown, Animation* p_animation);
+	~Projectile();
 	void shoot(Vector2f startPos);
 	void update(Vector2f startpos, Uint32 currentTime);
 	Vector2f getDirection();

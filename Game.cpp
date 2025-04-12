@@ -612,7 +612,7 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 	if (inputManager.keyStates[SDLK_w].isHold || inputManager.keyStates[SDLK_w].isStart) p_movement.y -= 1;
 	if (inputManager.keyStates[SDLK_s].isHold || inputManager.keyStates[SDLK_s].isStart) p_movement.y += 1;
 	if (runCoolDown(player->getCurrentProjectile()->getCoolDown(), player->getCurrentProjectile()->getLastShot())) {
-		if ((inputManager.keyStates[SDLK_SPACE].isHold || inputManager.keyStates[SDLK_SPACE].isStart) && (!isGamePause)) {
+		if ((inputManager.keyStates[SDLK_SPACE].isHold || inputManager.keyStates[SDLK_SPACE].isStart) && (!isGamePause) && (!isGameOver) ) {
 			player->shootProjectile(projectiles, animationProjectiles);
 			player->getCurrentProjectile()->setLastShot(currentTime - timePause);
 			if (player->getCurrentProjectile()->getName() == "fireBall") {
@@ -634,7 +634,6 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 }
 
 void Game::renderGame(Vector2f& p_movement) {
-	UILogic();
 	if (!isGameOver) {
 		for (auto& btn : buttonsInGame) {
 			btn->handleInput(inputManager);
@@ -644,6 +643,7 @@ void Game::renderGame(Vector2f& p_movement) {
 		player->changeProjectile(inputManager);
 
 		if (!isGamePause) {
+			UILogic();
 			if (runCoolDown(spawnManager.getCooldown(), spawnManager.getLastTime())) {
 				if (spawnManager.getIsWaveEnd()) {
 					int randomValue = random(0, 4);
@@ -1086,13 +1086,23 @@ void Game::startGameButtonFunction() {
 void Game::restartGameButtonFunction() {
 	std::cout << "Restart Button!" << std::endl;
 	isGameOver = false;
-	gameHp = 1;
+	gameHp = 5;
 	gameScore = 0;
 	numberOfWave = 1;
 	player->setPos(Vector2f(0, 362));
 	for (auto& ene : enemies) {
 		delete ene;
 	} 
+
+
+	for (auto prjIt = projectiles.begin(); prjIt != projectiles.end(); ) {
+		delete* prjIt;
+		prjIt = projectiles.erase(prjIt);
+	}
+
+	projectiles.clear();  
+
+
 	enemies.clear();
 	player->setCoin(0);
 	spawnManager.restart();

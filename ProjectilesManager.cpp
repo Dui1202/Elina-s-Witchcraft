@@ -19,6 +19,16 @@ Projectile::Projectile(std::string p_name, Vector2f p_pos, Vector2f p_shootDir, 
 	}
 }
 
+Projectile::~Projectile() {
+
+
+	animation = nullptr; // Safe nullify
+
+	std::cout << "Projectile [" << name << "] destroyed!" << std::endl;
+}
+
+
+
 void Projectile::update(Vector2f startpos, Uint32 currentTime) {
 
 

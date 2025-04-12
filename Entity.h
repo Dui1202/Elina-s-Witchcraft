@@ -7,7 +7,7 @@
 class Entity {
 public:
 	Entity(Vector2f p_vector, Animation* p_animation);
-	//virtual ~Entity();
+	virtual ~Entity();
 	//Get the Entity position
 	virtual Vector2f& getPos();
 	virtual void setPos(const Vector2f& p_pos);

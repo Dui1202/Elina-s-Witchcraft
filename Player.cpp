@@ -15,6 +15,16 @@ Player::Player(Vector2f p_pos, Animation* p_animation, std::vector<Projectile*> 
 	currentProjectile = projectilePrefabs[0];
 }
 
+Player::~Player() {
+
+	projectilePrefabs.clear();
+
+	currentProjectile = nullptr; 
+
+	std::cout << "Player destroyed!" << std::endl;
+}
+
+
 void Player::shootProjectile(std::vector<Projectile*>& projectilesVector, std::vector<Animation*>& animationProjectiles) {
 	//std::cout << "Shoot "<< currentProjectile->getName() <<"!" << std::endl;
 	

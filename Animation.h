@@ -7,6 +7,7 @@ class Animation {
 public:
 	Animation();
 	Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Rect p_frameSize, Uint32 timePerFrame, float p_renderScale = 1);
+	~Animation();
 	void update(Uint32 p_currentTime);
 	Vector2f getPos();
 	void setPos(Vector2f p_pos);

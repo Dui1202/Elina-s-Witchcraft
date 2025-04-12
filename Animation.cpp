@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "Animation.h"
+#include <iostream>
 
 Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Rect p_frameSize, Uint32 p_timePerFrame, float p_renderScale)
 	: pos(p_pos), animateSprite(p_sprite), frames(p_frames), frameSize(p_frameSize), timePerFrame(p_timePerFrame), renderScale(p_renderScale){
@@ -18,7 +19,13 @@ Animation::Animation(Vector2f p_pos, SDL_Texture* p_sprite, int p_frames, SDL_Re
 	h = frameSize.h * p_renderScale;
 }
 
+Animation::~Animation() {
+	animateSprite = nullptr; 
 
+	frameSrcs.clear(); 
+
+	std::cout << "Animation destroyed!" << std::endl;
+}
 
 void Animation::update(Uint32 p_currentTime) {
 	if (p_currentTime - timeLastFrame >= timePerFrame) {

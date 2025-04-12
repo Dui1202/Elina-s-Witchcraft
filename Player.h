@@ -11,6 +11,7 @@
 class Player : public GameObject {
 public:
 	Player();
+	~Player();
 	Player(Vector2f p_pos, Animation* p_animation, std::vector<Projectile*> &p_projectilePrefabs);
 	void shootProjectile(std::vector<Projectile*>& projectilesVector, std::vector<Animation*>& animationProjectiles);
 	void changeProjectile(InputManager& p_IM);
