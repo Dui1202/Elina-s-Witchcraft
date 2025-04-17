@@ -16,6 +16,22 @@
 #include "Wave.h"
 #include "Enums.h"
 #include <string>
+#include <fstream>
+
+const float RESTART_BUTTON_Y = 350;
+const float MENU_BUTTON_Y = 250;
+const float GAMEOVER_TEXT_Y = 100;
+const float HIGHSCORE_TEXT_Y = 200;
+const float MENU_TITLE_TEXT_Y = 50;
+const float MENU_MODAL_Y = 300;
+const float BOUND_X = 1280;
+const float BOUND_Y = 720;
+const float WINDSTORM_BOUND_X = 1200;
+const float ENEMY_BOUND_X = -100;
+const float ENEMY_BOUND_Y = 0;
+const float PLAYER_BOUND_Y_POS = 120;
+const float PLAYER_BOUND_Y_NEG = 600;
+const float PLAYER_DEFAULT_POS_Y = 362;
 
 void circularMotion(Enemy* &p_enemy, Vector2f p_center, float p_angleSpeed) {
 	float radius = 20;
@@ -33,7 +49,7 @@ void emptyFunction() {
 
 //Initalize window, resourceManager,
 Game::Game()
-	:window("Gametest", 1280, 720), resourceManager(window.getRenderer()), player(nullptr){}
+	:window("Gametest",BOUND_X, BOUND_Y), resourceManager(window.getRenderer()), player(nullptr){}
 
 //Starting the game (load all game textures, and initalize going-to-be-used GameObject) 
 void Game::start() {
@@ -152,6 +168,11 @@ void Game::start() {
 	Vector2f shopBtnPosition(50, 10);
 	Vector2f coinTextPosition(50, 80);
 	Vector2f gameHpTextPosition(50, 680);
+	Vector2f gameScoreTextPosition(50, 630);
+	Vector2f fireBallSkillHolderPosition(200,10);
+	Vector2f snowBallSkillHolderPosition(310, 10);
+	Vector2f windStormSkillHolderPosition(420, 10);
+
 
 	//Set some in-game varibles
 	playerSpeed = 5;
@@ -257,6 +278,7 @@ void Game::start() {
 	SDL_Color black = { 0, 0, 0, 255 };
 	SDL_Color white = { 255, 255, 255, 255 };
 	SDL_Color red = { 255, 0, 0, 255 };
+
 	Text* settingsText = new Text("Settings", Vector2f(0,0),black,window.getRenderer(), normal8BitFont);
 	Text* menuText = new Text("Menu", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* resumeText = new Text("Resume", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
@@ -272,7 +294,31 @@ void Game::start() {
 	Text* menuTitleText = new Text("Elina's Witchcraft", Vector2f(0, 0), white, window.getRenderer(), large8BitFont);
 	Text* gameOverText = new Text("GAME OVER!", Vector2f(0, 0), red, window.getRenderer(), large8BitFont);
 	Text* restartText = new Text("Restart", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* gameScoreText = new Text("Score: ", gameScoreTextPosition, black, window.getRenderer(), normal8BitFont);
+	Text* highScoreText = new Text("New High Score: ", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 
+	textsInGame.push_back(settingsText);
+	textsInGame.push_back(menuText);
+	textsInGame.push_back(resumeText);
+	textsInGame.push_back(playText);
+	textsInGame.push_back(quitText);
+	textsInGame.push_back(settingsModalText);
+	textsInGame.push_back(shopText);
+	textsInGame.push_back(coinText);
+	textsInGame.push_back(levelUpFireBallText);
+	textsInGame.push_back(levelUpSnowBallText);
+	textsInGame.push_back(levelUpWindStormText);
+	textsInGame.push_back(gameHpText);
+	textsInGame.push_back(gameScoreText);
+
+	textsInMenu.push_back(menuTitleText);
+
+	textsInGameoverScene.push_back(gameOverText);
+	textsInGameoverScene.push_back(highScoreText);
+
+	menuTitleText->setPos(Vector2f(window.getWidth() / 2, MENU_TITLE_TEXT_Y) - Vector2f(menuTitleText->getWidth() / 2, 0));
+	gameOverText->setPos(Vector2f(window.getWidth() / 2, GAMEOVER_TEXT_Y) - Vector2f(gameOverText->getWidth() / 2, 0));
+	highScoreText->setPos(Vector2f(window.getWidth() / 2, HIGHSCORE_TEXT_Y) - Vector2f(highScoreText->getWidth() / 2, 0));
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
 	Button* menuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
@@ -306,8 +352,8 @@ void Game::start() {
 
 	buttonsInGameoverScene.push_back(gameOverMenuButton);
 	buttonsInGameoverScene.push_back(restartButton);
-	gameOverMenuButton->setPos(Vector2f(window.getWidth() / 2, 200) - Vector2f(gameOverMenuButton->getWidth() / 2, 0));
-	restartButton->setPos(Vector2f(window.getWidth() / 2, 400) - Vector2f(restartButton->getWidth() / 2, 0));
+	gameOverMenuButton->setPos(Vector2f(window.getWidth() / 2, MENU_BUTTON_Y) - Vector2f(gameOverMenuButton->getWidth() / 2, 0));
+	restartButton->setPos(Vector2f(window.getWidth() / 2, RESTART_BUTTON_Y) - Vector2f(restartButton->getWidth() / 2, 0));
 
 
 
@@ -334,9 +380,9 @@ void Game::start() {
 
 
 	//Set Skill Holders
-	SkillHolder* fireBallSkillHolder = new SkillHolder(Vector2f(200, 10), fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
-	SkillHolder* snowBallSkillHolder = new SkillHolder(Vector2f(310, 10), snowBallCDBar, snowBallSkillHolderAnimation, snowBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
-	SkillHolder* windStormSkillHolder = new SkillHolder(Vector2f(420, 10), windStormCDBar, windStormSkillHolderAnimation, windStormSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
+	SkillHolder* fireBallSkillHolder = new SkillHolder(fireBallSkillHolderPosition, fireBallCDBar, fireBallSkillHolderAnimation, fireBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
+	SkillHolder* snowBallSkillHolder = new SkillHolder(snowBallSkillHolderPosition, snowBallCDBar, snowBallSkillHolderAnimation, snowBallSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
+	SkillHolder* windStormSkillHolder = new SkillHolder(windStormSkillHolderPosition, windStormCDBar, windStormSkillHolderAnimation, windStormSkillHolderCoolDownAnimation, indicatorAnimation, animationUIs, bars);
 
 	//Set projectiles
 	Projectile* fireball = new Projectile("fireBall", Vector2f(0, 0), Vector2f(1, 0), fireBallSpeed, fireBallStr, fireBallCoolDown, fireBallAnimation);
@@ -359,7 +405,7 @@ void Game::start() {
 	//Set positions
 	settingModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(settingModal->getWidth() / 2, settingModal->getHeight() / 2));
 	shopModal->setPos(Vector2f(window.getWidth() / 2, window.getHeight() / 2) - Vector2f(shopModal->getWidth() / 2, shopModal->getHeight() / 2));
-	menuModal->setPos(Vector2f(window.getWidth() / 2, 300) - Vector2f(menuModal->getWidth() / 2, 0));
+	menuModal->setPos(Vector2f(window.getWidth() / 2, MENU_MODAL_Y) - Vector2f(menuModal->getWidth() / 2, 0));
 
 	//Prefab waves
 
@@ -382,31 +428,9 @@ void Game::start() {
 	projectilePrefabs.push_back(windStorm);
 
 	//Set player
-	player = new Player(Vector2f(0, 362), nullptr, projectilePrefabs);
+	player = new Player(Vector2f(0, PLAYER_DEFAULT_POS_Y), nullptr, projectilePrefabs);
 	playerIdleAnimation->setPos(player->getPos());
 	player->setAnimation(playerIdleAnimation);
-
-
-	textsInGame.push_back(settingsText);
-	textsInGame.push_back(menuText);
-	textsInGame.push_back(resumeText);
-	textsInGame.push_back(playText);
-	textsInGame.push_back(quitText);
-	textsInGame.push_back(settingsModalText);
-	textsInGame.push_back(shopText);
-	textsInGame.push_back(coinText);
-	textsInGame.push_back(levelUpFireBallText);
-	textsInGame.push_back(levelUpSnowBallText);
-	textsInGame.push_back(levelUpWindStormText);
-	textsInGame.push_back(gameHpText);
-	textsInGame.push_back(gameOverText);
-
-	textsInMenu.push_back(menuTitleText);
-
-	textsInGameoverScene.push_back(gameOverText);
-
-	menuTitleText->setPos(Vector2f(window.getWidth() / 2, 50) - Vector2f(menuTitleText->getWidth() / 2, 0));
-	gameOverText->setPos(Vector2f(window.getWidth() / 2, 50) - Vector2f(gameOverText->getWidth() / 2, 0));
 
 	buttons.push_back(settingsButton);
 	buttons.push_back(menuButton);
@@ -435,6 +459,8 @@ void Game::start() {
 	spawnManager.setWavePrefabs(wavePrefabs);
 	spawnManager.setActiveEnemies(&enemies);
 	audioManager.setSounds(&musicPrefabs, &SFXPrefabs);
+
+	loadHighScore(gameHighScore);
 }
 
 void Game::debug() {
@@ -634,6 +660,8 @@ void Game::input(SDL_Event &e, Vector2f &p_movement) {
 }
 
 void Game::renderGame(Vector2f& p_movement) {
+	updateGameHp();
+	updateHighScore();
 	if (!isGameOver) {
 		for (auto& btn : buttonsInGame) {
 			btn->handleInput(inputManager);
@@ -705,6 +733,7 @@ void Game::renderGame(Vector2f& p_movement) {
 
 	window.renderText(textsInGame[COIN_TEXT]);
 	window.renderText(textsInGame[GAMEHP_TEXT]);
+	window.renderText(textsInGame[GAMESCORE_TEXT]);
 
 	for (auto& skillHolder : skillHolders) {
 		window.renderUI(skillHolder);
@@ -737,8 +766,9 @@ void Game::renderGame(Vector2f& p_movement) {
 			}
 		}
 
-		for (auto& txt : textsInGameoverScene) {
-			window.renderText(txt);
+		window.renderText(textsInGameoverScene[GAMEOVER_TEXT]);
+		if (isHighScoreUpdated) {
+			window.renderText(textsInGameoverScene[HIGHSCORE_TEXT]);
 		}
 	}
 
@@ -918,7 +948,7 @@ void Game::clean() {
 void Game::destroyOutOfBound() {
 	for (auto prjIt = projectiles.begin(); prjIt != projectiles.end();) {
 		if ((*prjIt)->getName() != "windStorm") {
-			if (((*prjIt)->getPos().x >= 1280 || (*prjIt)->getPos().y >= 720)) {
+			if (((*prjIt)->getPos().x >= BOUND_X || (*prjIt)->getPos().y >= BOUND_Y)) {
 				auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
 				if (animIt != animationProjectiles.end()) {
 					delete* animIt;
@@ -934,7 +964,7 @@ void Game::destroyOutOfBound() {
 			}
 		}
 		else {
-			if (((*prjIt)->getPos().x >= 1200 || (*prjIt)->getPos().y >= 720)) {
+			if (((*prjIt)->getPos().x >= WINDSTORM_BOUND_X || (*prjIt)->getPos().y >= BOUND_Y)) {
 				auto animIt = std::find(animationProjectiles.begin(), animationProjectiles.end(), (*prjIt)->getAnimation());
 				if (animIt != animationProjectiles.end()) {
 					delete* animIt;
@@ -954,7 +984,7 @@ void Game::destroyOutOfBound() {
 	}
 
 	for (auto eneIt = enemies.begin(); eneIt != enemies.end(); ) {
-		if ((*eneIt)->getPos().x < -100 || (*eneIt)->getPos().y <0) {
+		if ((*eneIt)->getPos().x < ENEMY_BOUND_X || (*eneIt)->getPos().y < ENEMY_BOUND_Y) {
 			auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), (*eneIt)->getAnimation());
 			if (animIt != animationEnemies.end()) {
 				delete* animIt;
@@ -991,6 +1021,7 @@ void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) 
 	//auto animIt = std::find(animationEnemies.begin(), animationEnemies.end(), p_enemy->getAnimation());
 	 
 	player->setCoin(player->getCoin() + (*eneIt)->getCoinDrop());
+	gameScore += (*eneIt)->getCoinDrop();
 	
 	if (eneIt == enemies.end()) {
 		std::cout << "Didn't find an enemy to destroy!" << std::endl;
@@ -1085,11 +1116,12 @@ void Game::startGameButtonFunction() {
 
 void Game::restartGameButtonFunction() {
 	std::cout << "Restart Button!" << std::endl;
+	isHighScoreUpdated = false;
 	isGameOver = false;
 	gameHp = 5;
 	gameScore = 0;
 	numberOfWave = 1;
-	player->setPos(Vector2f(0, 362));
+	player->setPos(Vector2f(0, PLAYER_DEFAULT_POS_Y));
 	for (auto& ene : enemies) {
 		delete ene;
 	} 
@@ -1173,11 +1205,11 @@ void Game::checkIsGameOver() {
 }
 
 void Game::setPlayerInBound() {
-	if (player->getPos().y >= (720 - 120)) {
-		player->setPos(Vector2f(player->getPos().x, 720 - 120));
+	if (player->getPos().y >= PLAYER_BOUND_Y_NEG) {
+		player->setPos(Vector2f(player->getPos().x, PLAYER_BOUND_Y_NEG));
 	}
-	else if (player->getPos().y <= 120) {
-		player->setPos(Vector2f(player->getPos().x, 120));
+	else if (player->getPos().y <= PLAYER_BOUND_Y_POS) {
+		player->setPos(Vector2f(player->getPos().x, PLAYER_BOUND_Y_POS));
 	}
 }
 
@@ -1240,7 +1272,42 @@ void Game::UILogic() {
 		}
 		skillHolders[WINDSTORM_SKILLHOLDER]->setIsActive(true);
 	}
+	updateGameScore();
+}
+
+void Game::updateGameHp() {
 	if (gameHp >= 0) {
 		textsInGame[GAMEHP_TEXT]->setText("HOME HP: " + std::to_string(gameHp));
 	}
+}
+
+void Game::updateGameScore() {
+	textsInGame[GAMESCORE_TEXT]->setText("Score: " + std::to_string(gameScore));
+}
+
+void Game::loadHighScore(int& p_highScore) {
+	std::ifstream in("highscore.txt");
+	if (in >> p_highScore) {
+		std::cout << "Loaded high score: " << p_highScore << std::endl;
+	}
+	else {
+		p_highScore = 0;
+	}
+	in.close();
+}
+
+void Game::saveHighScore() {
+	std::ofstream out("highscore.txt");
+	out << gameHighScore;
+	out.close();
+}
+
+void Game::updateHighScore() {
+	if (gameHighScore < gameScore) {
+		isHighScoreUpdated = true;
+		gameHighScore = gameScore;
+		saveHighScore();
+	}
+	textsInGameoverScene[HIGHSCORE_TEXT]->setText("New High Score: " + std::to_string(gameHighScore));
+
 }

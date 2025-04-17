@@ -43,6 +43,12 @@ public:
 	void setPlayerInBound();
 
 	void updateCoin();
+	void updateGameHp();
+	void updateGameScore();
+	void updateHighScore();
+
+	void loadHighScore(int &p_highScore);
+	void saveHighScore();
 	//Button functions
 	void settingsButtonFunction();
 	void shopButtonFunction();
@@ -117,7 +123,10 @@ private:
 	Uint32 lastPause = 0;
 	Uint32 timePause = 0;
 
+	bool isHighScoreUpdated = false;
+
 	int gameHp = 5;
 	int gameScore = 0;
+	int gameHighScore = 0;
 	int numberOfWave = 1;
 };

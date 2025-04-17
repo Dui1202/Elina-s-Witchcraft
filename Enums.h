@@ -44,7 +44,13 @@ enum enumTextInGame {
 	LEVELUP_SNOWBALL_TEXT,
 	LEVELUP_WINDSTORM_TEXT,
 	GAMEHP_TEXT,
-	GAMEOVER_TEXT
+	GAMESCORE_TEXT
+
+};
+
+enum enumTextInGameOverScene {
+	GAMEOVER_TEXT,
+	HIGHSCORE_TEXT
 };
 
 enum enumSFX {
