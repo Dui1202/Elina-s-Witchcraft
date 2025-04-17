@@ -4,7 +4,11 @@ Tên và Mã sinh viên: Nguyễn Thanh Duy - 24021449
 Đây là một game Survival Shooter - sử dụng phép thuật để bắn những kẻ địch đang từ từ tiến tới.
 
 Ngưỡng điểm mong muốn : 10!
-
+---
+## Cách chơi
+- Di chuyển lên xuống bằng W và S.
+- Bắn đạn bằng SPACE.
+- Chuyển đạn bằng J/K/L - Fireball/Snowball/Windstorm.
 ---
 ## 🏆 Tại sao Game này lại xứng đáng 10/10?
 
