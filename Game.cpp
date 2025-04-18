@@ -32,6 +32,7 @@ const float ENEMY_BOUND_Y = 0;
 const float PLAYER_BOUND_Y_POS = 120;
 const float PLAYER_BOUND_Y_NEG = 600;
 const float PLAYER_DEFAULT_POS_Y = 362;
+const float SOUND_VOLUME = 72;
 
 void circularMotion(Enemy* &p_enemy, Vector2f p_center, float p_angleSpeed) {
 	float radius = 20;
@@ -141,8 +142,8 @@ void Game::start() {
 		}
 	}
 
-	Mix_VolumeMusic(72);
-	Mix_VolumeChunk(SFXPrefabs[BUTTON_SFX], 72);
+	Mix_VolumeMusic(SOUND_VOLUME);
+	Mix_VolumeChunk(SFXPrefabs[BUTTON_SFX], SOUND_VOLUME);
 
 
 	//Set some frames
@@ -296,6 +297,7 @@ void Game::start() {
 	Text* restartText = new Text("Restart", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 	Text* gameScoreText = new Text("Score: ", gameScoreTextPosition, black, window.getRenderer(), normal8BitFont);
 	Text* highScoreText = new Text("New High Score: ", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
+	Text* musicOnOffText = new Text("Music", Vector2f(0, 0), black, window.getRenderer(), normal8BitFont);
 
 	textsInGame.push_back(settingsText);
 	textsInGame.push_back(menuText);
@@ -319,6 +321,7 @@ void Game::start() {
 	menuTitleText->setPos(Vector2f(window.getWidth() / 2, MENU_TITLE_TEXT_Y) - Vector2f(menuTitleText->getWidth() / 2, 0));
 	gameOverText->setPos(Vector2f(window.getWidth() / 2, GAMEOVER_TEXT_Y) - Vector2f(gameOverText->getWidth() / 2, 0));
 	highScoreText->setPos(Vector2f(window.getWidth() / 2, HIGHSCORE_TEXT_Y) - Vector2f(highScoreText->getWidth() / 2, 0));
+
 	//Set button
 	Button* settingsButton = new Button(settingBtnPosition, buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, settingsText, animationUIs, std::bind(&Game::settingsButtonFunction, this));
 	Button* menuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
@@ -331,12 +334,19 @@ void Game::start() {
 	Button* LevelUpWindStormButton = new Button(Vector2f(0, 0), longButtonNormalAnimation, longButtonHoverAnimation, longButtonActiveAnimation, levelUpWindStormText, animationUIs, std::bind(&Game::levelUpWindStorm, this));
 	Button* restartButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, restartText, animationUIs, std::bind(&Game::restartGameButtonFunction ,this));
 	Button* gameOverMenuButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, menuText, animationUIs, std::bind(&Game::menuButtonFunction, this));
+	Button* musicButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, musicOnOffText, animationUIs, std::bind(&Game::toggleMusicButtonFunction, this));
+	Button* musicSettingButton = new Button(Vector2f(0, 0), buttonNormalAnimation, buttonHoverAnimation, buttonActiveAnimation, musicOnOffText, animationUIs, std::bind(&Game::toggleMusicButtonFunction, this));
+
+
 	//Set of buttons
 	buttonsInMenu.push_back(playButton);
+	buttonsInMenu.push_back(musicButton);
 	buttonsInMenu.push_back(quitButton);
 
-	buttonsInSettingModal.push_back(menuButton);
+
 	buttonsInSettingModal.push_back(resumeButton);
+	buttonsInSettingModal.push_back(musicSettingButton);
+	buttonsInSettingModal.push_back(menuButton);
 
 	buttonsInShopModal.push_back(LevelUpFireBallButton);
 	buttonsInShopModal.push_back(LevelUpSnowBallButton);
@@ -349,13 +359,13 @@ void Game::start() {
 	buttonsInGame.push_back(LevelUpFireBallButton);
 	buttonsInGame.push_back(LevelUpSnowBallButton);
 	buttonsInGame.push_back(LevelUpWindStormButton);
-
+	buttonsInGame.push_back(musicSettingButton);
+	
 	buttonsInGameoverScene.push_back(gameOverMenuButton);
 	buttonsInGameoverScene.push_back(restartButton);
+
 	gameOverMenuButton->setPos(Vector2f(window.getWidth() / 2, MENU_BUTTON_Y) - Vector2f(gameOverMenuButton->getWidth() / 2, 0));
 	restartButton->setPos(Vector2f(window.getWidth() / 2, RESTART_BUTTON_Y) - Vector2f(restartButton->getWidth() / 2, 0));
-
-
 
 	//Set Bar
 	float hpp = 100;
@@ -441,6 +451,8 @@ void Game::start() {
 	buttons.push_back(LevelUpFireBallButton);
 	buttons.push_back(LevelUpSnowBallButton);
 	buttons.push_back(LevelUpWindStormButton);
+	buttons.push_back(musicButton);
+	buttons.push_back(musicSettingButton);
 
 	modals.push_back(settingModal);
 	modals.push_back(shopModal);
@@ -570,10 +582,10 @@ void Game::audio() {
 }
 
 void Game::audioUpdate() {
-	if (isGamePause) {
+	if (isGamePause && isMusicOn) {
 		audioManager.setMusicVolume(16);
 	}
-	else {
+	else if(isMusicOn){
 		audioManager.setMusicVolume(72);
 	}
 
@@ -730,7 +742,6 @@ void Game::renderGame(Vector2f& p_movement) {
 		window.renderUI(sl->getBar());
 	}
 
-
 	window.renderText(textsInGame[COIN_TEXT]);
 	window.renderText(textsInGame[GAMEHP_TEXT]);
 	window.renderText(textsInGame[GAMESCORE_TEXT]);
@@ -738,6 +749,8 @@ void Game::renderGame(Vector2f& p_movement) {
 	for (auto& skillHolder : skillHolders) {
 		window.renderUI(skillHolder);
 	}
+
+
 
 	for (auto& modal : modalsInGame) {
 		if (modal->getIsOpen()) {
@@ -773,7 +786,7 @@ void Game::renderGame(Vector2f& p_movement) {
 	}
 
 	checkIsGameOver();
-	//debug();
+	debug();
 }
 
 void Game::renderMenu() {
@@ -1309,5 +1322,19 @@ void Game::updateHighScore() {
 		saveHighScore();
 	}
 	textsInGameoverScene[HIGHSCORE_TEXT]->setText("New High Score: " + std::to_string(gameHighScore));
-
 }
+
+void Game::toggleMusicButtonFunction() {
+	std::cout << "Music button pressed!" << std::endl;
+	if (isMusicOn) {
+		audioManager.setMusicVolume(0);
+		audioManager.toggleSFX();
+		isMusicOn = false;
+	}
+	else {
+		audioManager.setMusicVolume(SOUND_VOLUME);
+		audioManager.toggleSFX();
+		isMusicOn = true;
+	}
+}
+

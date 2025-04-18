@@ -14,7 +14,9 @@ public:
 	void playWindStormSFX();
 	void playLevelUpSFX();
 	void setMusicVolume(int p_volume);
+	void toggleSFX();
 private:
 	std::vector<Mix_Music*>* musics;
 	std::vector<Mix_Chunk*>* SFXs;
+	bool isSFXOn = true;
 };

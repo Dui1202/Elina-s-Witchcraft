@@ -2,6 +2,8 @@
 #include <SDL_mixer.h>
 #include "Enums.h"
 
+const int SOUND_VOLUME = 72;
+
 AudioManager::AudioManager(){
 }
 
@@ -36,4 +38,20 @@ void AudioManager::playLevelUpSFX() {
 
 void AudioManager::setMusicVolume(int p_volume) {
 	Mix_VolumeMusic(p_volume);
+}
+
+void AudioManager::toggleSFX() {
+	if (isSFXOn) {
+		for (auto& sfx : (*SFXs)) {
+			Mix_VolumeChunk(sfx, 0);
+		}
+		isSFXOn = false;
+	}
+	else {
+		for (auto& sfx : (*SFXs)) {
+			Mix_VolumeChunk(sfx, SOUND_VOLUME);
+		}
+		isSFXOn = true;
+	}
+	
 }

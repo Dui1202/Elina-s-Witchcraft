@@ -60,6 +60,7 @@ public:
 	void quitGameButtonFunction();
 	void menuButtonFunction();
 	void resumeButtonFunction();
+	void toggleMusicButtonFunction();
 
 	void openCloseSettingModal();
 
@@ -124,6 +125,7 @@ private:
 	Uint32 timePause = 0;
 
 	bool isHighScoreUpdated = false;
+	bool isMusicOn = true;
 
 	int gameHp = 5;
 	int gameScore = 0;
