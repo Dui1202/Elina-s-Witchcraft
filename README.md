@@ -91,7 +91,7 @@ Ngưỡng điểm mong muốn : 10!
 8. [x] Score (có tính điểm)
 9. [x] Lưu bảng điểm
 10. [x] Sound
-11. [ ] Sound on off
+11. [x] Sound on off
 12. [x] Background music
 13. [x] Font
 14. [x] Menu
