@@ -88,8 +88,8 @@ Ngưỡng điểm mong muốn : 10!
 5. [x] Event chuột
 6. [x] Animation (hoạt hình)
 7. [x] Xử lý va chạm
-8. [ ] Score (có tính điểm)
-9. [ ] Lưu bảng điểm
+8. [x] Score (có tính điểm)
+9. [x] Lưu bảng điểm
 10. [x] Sound
 11. [ ] Sound on off
 12. [x] Background music
