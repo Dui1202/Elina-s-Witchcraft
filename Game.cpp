@@ -1049,6 +1049,12 @@ void Game::destroyEnemy(Enemy* p_enemy, std::vector<Enemy*>::iterator& p_eneIt) 
 void Game::settingsButtonFunction() {
 	std::cout << "Pressed settingButton!" << std::endl;
 	openCloseSettingModal();
+	if (isGamePause) {
+		buttonsInGame[SHOP_BUTTON]->setEnable(false);
+	}
+	else {
+		buttonsInGame[SHOP_BUTTON]->setEnable(true);
+	}
 
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
