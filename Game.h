@@ -24,7 +24,7 @@ public:
 	void update();
 	void pause();
 	void debug();
-	void graphic();
+	void backgroundGraphic();
 	void audio();
 	void audioUpdate();
 	void logic();

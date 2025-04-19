@@ -617,7 +617,7 @@ void Game::audioUpdate() {
 
 }
 
-void Game::graphic() {
+void Game::backgroundGraphic() {
 
 	Animation* backgroundAnimation = animationPrefabs[8];
 
@@ -813,8 +813,8 @@ void Game::renderMenu() {
 }
 //Main game loop
 void Game::update() {
-	//audio();
-	graphic();
+	
+	backgroundGraphic();
 
 	//Set flag for the game loop
 	bool isGameRunning = true;
@@ -1052,7 +1052,6 @@ void Game::settingsButtonFunction() {
 
 	Mix_PlayChannel(-1, SFXPrefabs[BUTTON_SFX], 0);
 }
-
 
 void Game::levelUpFireBall() {
 	if (player->getCoin() >= projectilePrefabs[0]->getUpgradeCoin()) {
