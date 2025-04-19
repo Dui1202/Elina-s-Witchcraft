@@ -35,5 +35,9 @@ int main(int argc, char* agrs[]) {
 	//Quit the program
 	SDL_Quit();
 
+	IMG_Quit();
+
+	Mix_Quit();
+
 	return 0;
 }
